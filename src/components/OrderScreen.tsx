@@ -1,0 +1,809 @@
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Grid,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  IconButton,
+  TextField,
+  Divider,
+  Paper,
+  AppBar,
+  Toolbar,
+  Snackbar,
+  Alert,
+  Badge,
+  CardMedia,
+  CardActions,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PrintIcon from '@mui/icons-material/Print';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import SettingsIcon from '@mui/icons-material/Settings';
+import HomeIcon from '@mui/icons-material/Home';
+import OrderCompleteModal from './OrderCompleteModal';
+import { useOrders } from '../context/OrderContext';
+import {
+  ArrowBack as ArrowBackIcon,
+  ShoppingCart as ShoppingCartIcon,
+} from '@mui/icons-material';
+import { CartItem } from '../types';
+
+interface Product {
+  id: string | number;
+  name: string;
+  price: number;
+  category: string;
+  description?: string;
+  image?: string;
+}
+
+interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+}
+
+const categories = [
+  'Hatay Usulü Dönerler',
+  'Klasik Dönerler',
+  'Takolar',
+  'Porsiyonlar',
+  'Menüler',
+  'İçecekler & Atıştırmalık',
+];
+
+const products: Product[] = [
+  // Hatay Usulü Dönerler
+  {
+    id: 1,
+    name: 'Hatay Usulü TAVUK Eko Döner',
+    price: 100,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 2,
+    name: 'Hatay Usulü TAVUK Normal Döner',
+    price: 120,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 3,
+    name: 'Hatay Usulü TAVUK Maksi Döner',
+    price: 160,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 4,
+    name: 'Hatay Usulü ET Eko Döner',
+    price: 180,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 5,
+    name: 'Hatay Usulü ET Normal Döner',
+    price: 220,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 6,
+    name: 'Hatay Usulü ET Maksi Döner',
+    price: 280,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 'hud-lavas',
+    name: 'Hatay Usulü Lavaş',
+    price: 15,
+    category: 'Hatay Usulü Dönerler',
+  },
+
+  // Klasik Dönerler
+  {
+    id: 7,
+    name: 'Klasik TAVUK Eko Döner',
+    price: 100,
+    category: 'Klasik Dönerler',
+  },
+  {
+    id: 8,
+    name: 'Klasik TAVUK Normal Döner',
+    price: 120,
+    category: 'Klasik Dönerler',
+  },
+  {
+    id: 9,
+    name: 'Klasik ET Eko Döner',
+    price: 180,
+    category: 'Klasik Dönerler',
+  },
+  {
+    id: 10,
+    name: 'Klasik ET Normal Döner',
+    price: 220,
+    category: 'Klasik Dönerler',
+  },
+  {
+    id: 'kd-lavas',
+    name: 'Klasik Lavaş',
+    price: 15,
+    category: 'Klasik Dönerler',
+  },
+
+  // Takolar
+  {
+    id: 11,
+    name: 'TAVUK Tekli Tako',
+    price: 75,
+    category: 'Takolar',
+  },
+  {
+    id: 12,
+    name: 'TAVUK İkili Tako',
+    price: 130,
+    category: 'Takolar',
+  },
+  {
+    id: 13,
+    name: 'ET Tekli Tako',
+    price: 120,
+    category: 'Takolar',
+  },
+  {
+    id: 14,
+    name: 'ET İkili Tako',
+    price: 220,
+    category: 'Takolar',
+  },
+  {
+    id: 15,
+    name: 'Karışık Combo Tako',
+    price: 175,
+    category: 'Takolar',
+  },
+  {
+    id: 't-lavas',
+    name: 'Tako Lavaş',
+    price: 15,
+    category: 'Takolar',
+  },
+
+  // Porsiyonlar
+  {
+    id: 16,
+    name: 'TAVUK Döner Porsiyon',
+    price: 175,
+    category: 'Porsiyonlar',
+  },
+  {
+    id: 17,
+    name: 'Pilav Üstü TAVUK Döner Porsiyon',
+    price: 190,
+    category: 'Porsiyonlar',
+  },
+  {
+    id: 18,
+    name: 'ET Döner Porsiyon',
+    price: 300,
+    category: 'Porsiyonlar',
+  },
+  {
+    id: 19,
+    name: 'Pilav Üstü ET Döner Porsiyon',
+    price: 315,
+    category: 'Porsiyonlar',
+  },
+  {
+    id: 'p-lavas',
+    name: 'Porsiyon Lavaş',
+    price: 15,
+    category: 'Porsiyonlar',
+  },
+
+  // Menüler
+  {
+    id: 20,
+    name: 'TAVUK Döner Menü',
+    price: 175,
+    category: 'Menüler',
+  },
+  {
+    id: 21,
+    name: 'ET Döner Menü',
+    price: 275,
+    category: 'Menüler',
+  },
+  {
+    id: 'm-lavas',
+    name: 'Menü Lavaş',
+    price: 15,
+    category: 'Menüler',
+  },
+
+  // İçecekler & Atıştırmalık
+  {
+    id: 22,
+    name: 'Ayran',
+    price: 35,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 23,
+    name: 'Kutu İçecekler',
+    price: 45,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 24,
+    name: 'Şalgam',
+    price: 35,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 25,
+    name: 'Soda',
+    price: 20,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 26,
+    name: 'Su',
+    price: 15,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 27,
+    name: 'Külahta Patates Kızartması',
+    price: 40,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 28,
+    name: 'Antep Usulü Katmer Tatlısı',
+    price: 120,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 'drink-1',
+    name: 'Külah Patates',
+    price: 60,
+    category: 'İçecekler & Atıştırmalık',
+    image: 'https://via.placeholder.com/150',
+  },
+  {
+    id: 'drink-2',
+    name: 'Servis Patates',
+    price: 60,
+    category: 'İçecekler & Atıştırmalık',
+    image: 'https://via.placeholder.com/150',
+  },
+  {
+    id: 'drink-3',
+    name: 'Katmer',
+    price: 60,
+    category: 'İçecekler & Atıştırmalık',
+    image: 'https://via.placeholder.com/150',
+  },
+  {
+    id: 'ia-lavas',
+    name: 'Lavaş',
+    price: 15,
+    category: 'İçecekler & Atıştırmalık',
+  },
+];
+
+const menuItems: MenuItem[] = [
+  {
+    id: '1',
+    name: 'Döner Porsiyon',
+    description: 'Özel soslu döner porsiyon',
+    price: 120,
+    image: '/images/doner.jpg',
+    category: 'Ana Yemekler'
+  },
+  {
+    id: '2',
+    name: 'İskender',
+    description: 'Özel domates soslu iskender',
+    price: 150,
+    image: '/images/iskender.jpg',
+    category: 'Ana Yemekler'
+  },
+  {
+    id: '3',
+    name: 'Lahmacun',
+    description: 'İnce hamurlu lahmacun',
+    price: 45,
+    image: '/images/lahmacun.jpg',
+    category: 'Fast Food'
+  },
+  {
+    id: '4',
+    name: 'Pide',
+    description: 'Kaşarlı pide',
+    price: 60,
+    image: '/images/pide.jpg',
+    category: 'Fast Food'
+  },
+  {
+    id: '5',
+    name: 'Ayran',
+    description: 'Soğuk ayran',
+    price: 15,
+    image: '/images/ayran.jpg',
+    category: 'İçecekler'
+  },
+  {
+    id: '6',
+    name: 'Kola',
+    description: 'Soğuk kola',
+    price: 20,
+    image: '/images/kola.jpg',
+    category: 'İçecekler'
+  }
+];
+
+const OrderScreen: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { addOrder } = useOrders();
+  const orderType = location.state?.orderType || 'dine-in';
+  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [quantities, setQuantities] = useState<Record<string | number, number>>({});
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [paymentType, setPaymentType] = useState<'cash' | 'card'>('cash');
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+
+  const handleQuantityChange = (productId: string | number, change: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [productId]: Math.max(0, (prev[productId] || 0) + change),
+    }));
+  };
+
+  const addToCart = (product: Product) => {
+    const quantity = quantities[product.id] || 0;
+    if (quantity === 0) return;
+
+    setCart((prev) => {
+      const existingItem = prev.find((item) => item.id === product.id);
+      if (existingItem) {
+        return prev.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity }];
+    });
+
+    setQuantities((prev) => ({
+      ...prev,
+      [product.id]: 0,
+    }));
+  };
+
+  const removeFromCart = (productId: string | number) => {
+    setCart((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const calculateTotal = () => {
+    const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    const deliveryFee = cart.reduce((fee, item) => {
+      if (item.category === 'İçecekler & Atıştırmalık') {
+        return fee + (5 * item.quantity);
+      } else {
+        return fee + (15 * item.quantity);
+      }
+    }, 0);
+    return subtotal + deliveryFee;
+  };
+
+  const calculateDeliveryFee = () => {
+    if (orderType !== 'delivery') return 0;
+
+    let hasMainDish = false;
+    let hasDrink = false;
+
+    cart.forEach(item => {
+      if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
+        hasMainDish = true;
+      } else if (item.category === 'İçecekler & Atıştırmalık') {
+        hasDrink = true;
+      }
+    });
+
+    let fee = 0;
+    if (hasMainDish) fee += 15;
+    if (hasDrink) fee += 5;
+
+    return fee;
+  };
+
+  const handleComplete = () => {
+    addOrder({
+      type: orderType,
+      items: cart,
+      total: calculateTotal(),
+      phone,
+      address,
+      paymentType: orderType === 'delivery' ? paymentType : undefined,
+    });
+
+    // Yazdırma işlemi
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const content = `
+        <html>
+          <head>
+            <title>Uslu Döner - Sipariş Fişi</title>
+            <style>
+              body { font-family: monospace; padding: 20px; }
+              .header { text-align: center; margin-bottom: 20px; }
+              .divider { border-top: 1px dashed #000; margin: 10px 0; }
+              .total { font-weight: bold; }
+              .right { text-align: right; }
+              .item { margin: 5px 0; }
+              .price { float: right; }
+              .clear { clear: both; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h2>🍽️ USLU DÖNER</h2>
+              <p>📍 Sipariş Tipi: ${orderType === 'dine-in' ? 'İçeride' : 'Kurye'}</p>
+              <p>📆 ${new Date().toLocaleString('tr-TR')}</p>
+            </div>
+            <div class="divider"></div>
+            ${cart.map(item => `
+              <div class="item">
+                <span>${item.quantity}x ${item.name}</span>
+                <span class="price">${(item.price * item.quantity).toFixed(2)}₺</span>
+                <div class="clear"></div>
+              </div>
+            `).join('')}
+            <div class="divider"></div>
+            ${orderType === 'delivery' ? `
+              <div class="item">
+                <span>Kurye Ücreti</span>
+                <span class="price">${calculateDeliveryFee().toFixed(2)}₺</span>
+                <div class="clear"></div>
+              </div>
+              <div class="divider"></div>
+              <div>
+                <p>📱 Telefon: ${phone || '-'}</p>
+                <p>📍 Adres: ${address || '-'}</p>
+              </div>
+              <div class="divider"></div>
+              <div>
+                <p>💳 Ödeme Tipi: ${paymentType === 'cash' ? 'Nakit' : 'Kredi Kartı'}</p>
+              </div>
+            ` : ''}
+            <div class="divider"></div>
+            <div class="total right">
+              Toplam: ${calculateTotal().toFixed(2)}₺
+            </div>
+            <div class="divider"></div>
+            <div style="text-align: center; margin-top: 20px;">
+              <p>Bizi tercih ettiğiniz için teşekkür ederiz!</p>
+              <p>Afiyet olsun...</p>
+            </div>
+          </body>
+        </html>
+      `;
+      printWindow.document.write(content);
+      printWindow.document.close();
+      printWindow.print();
+    }
+
+    // Sepeti temizle
+    setCart([]);
+    setQuantities({});
+
+    // Modalı kapat
+    setIsOrderModalOpen(false);
+
+    // Başarı mesajını göster
+    setShowSuccessMessage(true);
+  };
+
+  const exportToExcel = () => {
+    // Excel başlıkları
+    const headers = [
+      'Tarih',
+      'Sipariş Tipi',
+      'Ürün',
+      'Adet',
+      'Birim Fiyat',
+      'Toplam Fiyat',
+      'Telefon',
+      'Adres',
+      'Ödeme Tipi'
+    ];
+
+    // Siparişleri Excel formatına dönüştür
+    const excelData = cart.map(item => [
+      new Date().toLocaleString('tr-TR'),
+      orderType === 'dine-in' ? 'İçeride' : 'Kurye',
+      item.name,
+      item.quantity,
+      item.price,
+      item.price * item.quantity,
+      orderType === 'delivery' ? phone : '-',
+      orderType === 'delivery' ? address : '-',
+      orderType === 'delivery' ? (paymentType === 'cash' ? 'Nakit' : 'Kredi Kartı') : '-'
+    ]);
+
+    // CSV formatına dönüştür
+    const csvContent = [
+      headers.join(','),
+      ...excelData.map(row => row.join(','))
+    ].join('\n');
+
+    // CSV dosyasını indir
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `uslu_doner_siparis_${new Date().toLocaleString('tr-TR').replace(/[/\\?%*:|"<>]/g, '-')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleAddToCart = (item: MenuItem) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+      if (existingItem) {
+        return prevCart.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      }
+      return [...prevCart, { 
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: 1,
+        category: item.category
+      }];
+    });
+  };
+
+  const filteredProducts = products.filter(
+    (product) => product.category === selectedCategory
+  );
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static" color="default" elevation={1}>
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={() => navigate('/')}
+            sx={{ mr: 2 }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            USLU DÖNER – Sipariş tipi: {orderType === 'dine-in' ? 'İçeride' : 'Kurye'}
+          </Typography>
+          <Button
+            startIcon={<BarChartIcon />}
+            onClick={() => navigate('/admin')}
+            sx={{ mr: 1 }}
+          >
+            Raporlar
+          </Button>
+          <Button
+            startIcon={<SettingsIcon />}
+            onClick={() => navigate('/admin')}
+            sx={{ mr: 1 }}
+          >
+            Ayarlar
+          </Button>
+          <Button
+            startIcon={<HomeIcon />}
+            onClick={() => navigate('/')}
+            sx={{ mr: 1 }}
+          >
+            Ana Sayfa
+          </Button>
+          <Button
+            startIcon={<PrintIcon />}
+            onClick={exportToExcel}
+            sx={{ mr: 1 }}
+          >
+            Excel'e Aktar
+          </Button>
+          <IconButton color="inherit">
+            <Badge badgeContent={cart.length} color="primary">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+
+      <Box sx={{ p: 3 }}>
+        <Grid container spacing={3}>
+          {/* Left side - Categories and Products */}
+          <Grid item xs={12} md={8}>
+            <Box sx={{ mb: 2 }}>
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? 'contained' : 'outlined'}
+                  onClick={() => setSelectedCategory(category)}
+                  sx={{ mr: 1, mb: 1 }}
+                >
+                  {category}
+                </Button>
+              ))}
+            </Box>
+
+            <Grid container spacing={2}>
+              {filteredProducts.map((product) => (
+                <Grid item xs={12} sm={6} key={product.id}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6">{product.name}</Typography>
+                      <Typography color="textSecondary">
+                        {product.price}₺
+                      </Typography>
+                      {product.description && (
+                        <Typography variant="body2">{product.description}</Typography>
+                      )}
+                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                        <IconButton
+                          onClick={() => handleQuantityChange(product.id, -1)}
+                          disabled={!quantities[product.id]}
+                        >
+                          <RemoveIcon />
+                        </IconButton>
+                        <TextField
+                          value={quantities[product.id] || 0}
+                          size="small"
+                          sx={{ width: 60, mx: 1 }}
+                          inputProps={{ readOnly: true }}
+                        />
+                        <IconButton
+                          onClick={() => handleQuantityChange(product.id, 1)}
+                        >
+                          <AddIcon />
+                        </IconButton>
+                        <Button
+                          variant="contained"
+                          onClick={() => addToCart(product)}
+                          disabled={!quantities[product.id]}
+                          sx={{ ml: 2 }}
+                        >
+                          Sepete Ekle
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+
+          {/* Right side - Cart */}
+          <Grid item xs={12} md={4}>
+            <Paper sx={{ p: 2, height: '100%' }}>
+              <Typography variant="h6" gutterBottom>
+                🛒 Sepet
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              {cart.length === 0 ? (
+                <Typography color="textSecondary" align="center" sx={{ py: 4 }}>
+                  Sepetiniz boş.
+                  <br />
+                  Lütfen sol taraftan ürün seçin.
+                </Typography>
+              ) : (
+                <>
+                  {cart.map((item) => (
+                    <Box
+                      key={item.id}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mb: 1,
+                      }}
+                    >
+                      <Box>
+                        <Typography>{item.name}</Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {item.quantity} x {item.price}₺
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography sx={{ mr: 1 }}>
+                          {item.quantity * item.price}₺
+                        </Typography>
+                        <IconButton
+                          size="small"
+                          onClick={() => removeFromCart(item.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  ))}
+                  <Divider sx={{ my: 2 }} />
+                  <Typography variant="h6" gutterBottom>
+                    Toplam: {calculateTotal()}₺
+                  </Typography>
+                  {orderType === 'delivery' && (
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
+                      * Kurye ücreti dahildir
+                    </Typography>
+                  )}
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    disabled={cart.length === 0}
+                    startIcon={<PrintIcon />}
+                    onClick={() => setShowCompleteModal(true)}
+                    sx={{ mt: 2 }}
+                  >
+                    Siparişi Tamamla
+                  </Button>
+                </>
+              )}
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <OrderCompleteModal
+        open={showCompleteModal}
+        onClose={() => setShowCompleteModal(false)}
+        orderType={orderType}
+        cart={cart}
+        total={calculateTotal()}
+        onComplete={handleComplete}
+      />
+
+      <Snackbar
+        open={showSuccessMessage}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccessMessage(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" sx={{ width: '100%' }}>
+          Sipariş başarıyla kaydedildi!
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+};
+
+export default OrderScreen; 
