@@ -112,7 +112,7 @@ const products: Product[] = [
   },
   {
     id: 'hud-lavas',
-    name: 'Hatay Usulü Lavaş',
+    name: 'Ekstra Lavaş',
     price: 15,
     category: 'Hatay Usulü Dönerler',
   },
@@ -143,8 +143,8 @@ const products: Product[] = [
     category: 'Klasik Dönerler',
   },
   {
-    id: 'kd-lavas',
-    name: 'Klasik Lavaş',
+    id: 'hud-lavas',
+    name: 'Ekstra Lavaş',
     price: 15,
     category: 'Klasik Dönerler',
   },
@@ -180,12 +180,7 @@ const products: Product[] = [
     price: 175,
     category: 'Takolar',
   },
-  {
-    id: 't-lavas',
-    name: 'Tako Lavaş',
-    price: 15,
-    category: 'Takolar',
-  },
+  
 
   // Porsiyonlar
   {
@@ -213,8 +208,8 @@ const products: Product[] = [
     category: 'Porsiyonlar',
   },
   {
-    id: 'p-lavas',
-    name: 'Porsiyon Lavaş',
+    id: 'hud-lavas',
+    name: 'Ekstra Lavaş',
     price: 15,
     category: 'Porsiyonlar',
   },
@@ -234,7 +229,7 @@ const products: Product[] = [
   },
   {
     id: 'm-lavas',
-    name: 'Menü Lavaş',
+    name: 'Ekstra Lavaş',
     price: 15,
     category: 'Menüler',
   },
@@ -283,6 +278,24 @@ const products: Product[] = [
     category: 'İçecekler & Atıştırmalık',
   },
   {
+    id: 29,
+    name: '1 LT Kola ',
+    price: 70,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 30,
+    name: '1 LT Ayaran',
+    price: 70,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
+    id: 31,
+    name: '2,5 LT Kola',
+    price: 85,
+    category: 'İçecekler & Atıştırmalık',
+  },
+  {
     id: 'drink-1',
     name: 'Külah Patates',
     price: 60,
@@ -303,12 +316,7 @@ const products: Product[] = [
     category: 'İçecekler & Atıştırmalık',
     image: 'https://via.placeholder.com/150',
   },
-  {
-    id: 'ia-lavas',
-    name: 'Lavaş',
-    price: 15,
-    category: 'İçecekler & Atıştırmalık',
-  },
+ 
 ];
 
 const menuItems: MenuItem[] = [

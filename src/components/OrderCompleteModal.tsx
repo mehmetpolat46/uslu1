@@ -76,10 +76,14 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     const orderItems: OrderItem[] = cart.map(item => ({
       ...item,
       id: item.id.toString(),
-      category: item.category || 'default'
+      category: item.category || 'default',
+      name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
     }));
 
     const deliveryFee = cart.reduce((fee, item) => {
+      if (item.id === 'm-lavas') {
+        return fee + (0 * item.quantity);
+      }
       if (item.category === 'İçecek & Atıştırmalıklar') {
         return fee + (5 * item.quantity);
       } else {
@@ -87,10 +91,12 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       }
     }, 0);
 
+    const finalTotal = initialOrderType === 'delivery' ? total + deliveryFee : total;
+
     addOrder({
       type: initialOrderType,
       items: orderItems,
-      total: total + deliveryFee,
+      total: finalTotal,
       phone: initialOrderType === 'delivery' ? phone : undefined,
       address: initialOrderType === 'delivery' ? address : undefined,
       paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
