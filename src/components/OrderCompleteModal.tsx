@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -50,6 +50,27 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [paymentType, setPaymentType] = useState<'cash' | 'card'>('cash');
+  const [receiptNumber, setReceiptNumber] = useState(() => {
+    const savedNumber = localStorage.getItem('receiptNumber');
+    const savedDate = localStorage.getItem('receiptDate');
+    const today = new Date().toDateString();
+
+    if (savedDate === today && savedNumber) {
+      return parseInt(savedNumber, 10);
+    }
+    return 1;
+  });
+
+  useEffect(() => {
+    const savedDate = localStorage.getItem('receiptDate');
+    const today = new Date().toDateString();
+
+    if (savedDate !== today) {
+      setReceiptNumber(1);
+      localStorage.setItem('receiptDate', today);
+    }
+    localStorage.setItem('receiptNumber', receiptNumber.toString());
+  }, [receiptNumber]);
 
   const handleComplete = () => {
     const orderItems: OrderItem[] = cart.map(item => ({
@@ -111,6 +132,12 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 color: #666;
                 margin: 5px 0 0;
                 font-size: 14px;
+              }
+              
+              .receipt-number {
+                font-weight: 700;
+                font-size: 16px;
+                color: #000;
               }
               
               .info {
@@ -197,6 +224,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
             <div class="header">
               <h2>USLU DÖNER</h2>
               <p>Sipariş Fişi</p>
+              <p class="receipt-number">Fiş No: ${receiptNumber}</p>
             </div>
             
             <div class="info">
@@ -240,6 +268,9 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       `);
       printWindow.document.close();
       printWindow.print();
+      
+      // Fiş numarasını artır
+      setReceiptNumber(prev => prev + 1);
     }
 
     onComplete();

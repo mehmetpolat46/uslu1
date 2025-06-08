@@ -412,13 +412,13 @@ const OrderScreen: React.FC = () => {
 
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    const deliveryFee = cart.reduce((fee, item) => {
+    const deliveryFee = orderType === 'delivery' ? cart.reduce((fee, item) => {
       if (item.category === 'İçecekler & Atıştırmalık') {
         return fee + (5 * item.quantity);
       } else {
         return fee + (15 * item.quantity);
       }
-    }, 0);
+    }, 0) : 0;
     return subtotal + deliveryFee;
   };
 
