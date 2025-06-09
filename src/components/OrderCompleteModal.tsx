@@ -296,6 +296,42 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               <p>Afiyet olsun...</p>
             </div>
           </body>
+          <style>
+  body {
+    font-family: Arial, sans-serif;
+    color: black;
+    font-weight: bold;
+  }
+
+  .header,
+  .info,
+  .items,
+  .total,
+  .footer {
+    color: black;
+    font-weight: bold;
+  }
+
+  .item-name,
+  .item-details,
+  .grand-total span,
+  .receipt-number {
+    color: black;
+    font-weight: bold;
+  }
+
+  @media print {
+    body {
+      color: black !important;
+      font-weight: bold !important;
+    }
+
+    * {
+      color: black !important;
+      font-weight: bold !important;
+    }
+  }
+</style>
         </html>
       `);
       printWindow.document.close();
