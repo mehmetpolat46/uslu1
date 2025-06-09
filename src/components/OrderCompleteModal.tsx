@@ -81,8 +81,8 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     }));
 
     const deliveryFee = cart.reduce((fee, item) => {
-      if (item.id === 'm-lavas') {
-        return fee + (0 * item.quantity);
+      if (item.name.toLowerCase().includes('lavaş')) {
+        return fee;
       }
       if (item.category === 'İçecek & Atıştırmalıklar') {
         return fee + (5 * item.quantity);

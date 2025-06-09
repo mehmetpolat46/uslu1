@@ -295,23 +295,10 @@ const products: Product[] = [
     price: 85,
     category: 'İçecekler & Atıştırmalık',
   },
-  {
-    id: 'drink-1',
-    name: 'Külah Patates',
-    price: 60,
-    category: 'İçecekler & Atıştırmalık',
-    image: 'https://via.placeholder.com/150',
-  },
+
   {
     id: 'drink-2',
     name: 'Servis Patates',
-    price: 60,
-    category: 'İçecekler & Atıştırmalık',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    id: 'drink-3',
-    name: 'Katmer',
     price: 60,
     category: 'İçecekler & Atıştırmalık',
     image: 'https://via.placeholder.com/150',
@@ -421,6 +408,9 @@ const OrderScreen: React.FC = () => {
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
     const deliveryFee = orderType === 'delivery' ? cart.reduce((fee, item) => {
+      if (item.name.toLowerCase().includes('lavaş')) {
+        return fee;
+      }
       if (item.category === 'İçecekler & Atıştırmalık') {
         return fee + (5 * item.quantity);
       } else {
@@ -437,6 +427,9 @@ const OrderScreen: React.FC = () => {
     let hasDrink = false;
 
     cart.forEach(item => {
+      if (item.name.toLowerCase().includes('lavaş')) {
+        return; // Skip lavaş items
+      }
       if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
         hasMainDish = true;
       } else if (item.category === 'İçecekler & Atıştırmalık') {
