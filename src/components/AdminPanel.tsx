@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -62,6 +62,14 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+interface PhoneAddressData {
+  address: string;
+}
+
+interface SavedPhones {
+  [key: string]: PhoneAddressData;
+}
+
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
   const { orders, deleteOrder, getSalesStats } = useOrders();
@@ -71,6 +79,34 @@ const AdminPanel: React.FC = () => {
   const [dateRange, setDateRange] = useState('today');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{ name: string; quantity: number; total: number } | null>(null);
+  const [phoneAddress, setPhoneAddress] = useState({ phone: '', address: '' });
+  const [savedPhones, setSavedPhones] = useState<SavedPhones>(() => {
+    const saved = localStorage.getItem('savedPhones');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // Save to localStorage whenever savedPhones changes
+  useEffect(() => {
+    localStorage.setItem('savedPhones', JSON.stringify(savedPhones));
+  }, [savedPhones]);
+
+  const handleSavePhoneAddress = () => {
+    if (phoneAddress.phone && phoneAddress.address) {
+      setSavedPhones((prev: SavedPhones) => ({
+        ...prev,
+        [phoneAddress.phone]: { address: phoneAddress.address }
+      }));
+      setPhoneAddress({ phone: '', address: '' });
+    }
+  };
+
+  const handleDeletePhoneAddress = (phone: string) => {
+    setSavedPhones((prev: SavedPhones) => {
+      const newPhones = { ...prev };
+      delete newPhones[phone];
+      return newPhones;
+    });
+  };
 
   const stats = getSalesStats();
 
@@ -432,6 +468,63 @@ const AdminPanel: React.FC = () => {
           <TabPanel value={tabValue} index={3}>
             <Box sx={{ maxWidth: 600 }}>
               <Typography variant="h6" gutterBottom>
+                Telefon ve Adres Kayıtları
+              </Typography>
+              <Box sx={{ mb: 2 }}>
+                <TextField
+                  label="Telefon"
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  value={phoneAddress.phone}
+                  onChange={(e) => {
+                    const phone = e.target.value;
+                    if (phone.length === 10) {
+                      const address = savedPhones[phone]?.address || '';
+                      setPhoneAddress({ phone, address });
+                    } else {
+                      setPhoneAddress(prev => ({ ...prev, phone }));
+                    }
+                  }}
+                />
+                <TextField
+                  label="Adres"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  sx={{ mb: 2 }}
+                  value={phoneAddress.address}
+                  onChange={(e) => setPhoneAddress(prev => ({ ...prev, address: e.target.value }))}
+                />
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleSavePhoneAddress}
+                >
+                  Kaydet
+                </Button>
+              </Box>
+
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+                Kayıtlı Telefonlar
+              </Typography>
+              <Box sx={{ mb: 4 }}>
+                {Object.entries(savedPhones).map(([phone, data]: [string, any]) => (
+                  <Box key={phone} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+                    <Typography variant="subtitle1">📱 {phone}</Typography>
+                    <Typography variant="body2" color="textSecondary">📍 {data.address}</Typography>
+                    <Button
+                      size="small"
+                      color="error"
+                      onClick={() => handleDeletePhoneAddress(phone)}
+                      sx={{ mt: 1 }}
+                    >
+                      Sil
+                    </Button>
+                  </Box>
+                ))}
+              </Box>
+
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
                 Kurye Ücretleri
               </Typography>
               <TextField

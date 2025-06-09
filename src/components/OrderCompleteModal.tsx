@@ -49,6 +49,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
   const { addOrder } = useOrders();
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [lastFourDigits, setLastFourDigits] = useState('');
   const [paymentType, setPaymentType] = useState<'cash' | 'card'>('cash');
   const [receiptNumber, setReceiptNumber] = useState(() => {
     const savedNumber = localStorage.getItem('receiptNumber');
@@ -72,6 +73,17 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     localStorage.setItem('receiptNumber', receiptNumber.toString());
   }, [receiptNumber]);
 
+  useEffect(() => {
+    if (lastFourDigits.length === 4) {
+      const savedPhones = JSON.parse(localStorage.getItem('savedPhones') || '{}');
+      const foundPhone = Object.keys(savedPhones).find(p => p.endsWith(lastFourDigits));
+      if (foundPhone) {
+        setPhone(foundPhone);
+        setAddress(savedPhones[foundPhone].address);
+      }
+    }
+  }, [lastFourDigits]);
+
   const handleComplete = () => {
     const orderItems: OrderItem[] = cart.map(item => ({
       ...item,
@@ -80,18 +92,29 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
     }));
 
-    const deliveryFee = cart.reduce((fee, item) => {
-      if (item.name.toLowerCase().includes('lavaş')) {
-        return fee;
-      }
-      if (item.category === 'İçecek & Atıştırmalıklar') {
-        return fee + (5 * item.quantity);
-      } else {
-        return fee + (15 * item.quantity);
-      }
-    }, 0);
+    const deliveryFee = initialOrderType === 'delivery' ? (() => {
+      let hasMainDish = false;
+      let hasDrink = false;
 
-    const finalTotal = initialOrderType === 'delivery' ? total + deliveryFee : total;
+      cart.forEach(item => {
+        if (item.name.toLowerCase().includes('lavaş')) {
+          return; // Skip lavaş items
+        }
+        if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
+          hasMainDish = true;
+        } else if (item.category === 'İçecekler & Atıştırmalık') {
+          hasDrink = true;
+        }
+      });
+
+      let fee = 0;
+      if (hasMainDish) fee += 15;
+      if (hasDrink) fee += 5;
+
+      return fee;
+    })() : 0;
+
+    const finalTotal = total;
 
     addOrder({
       type: initialOrderType,
@@ -331,10 +354,26 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
           <>
             <TextField
               fullWidth
+              label="Telefon Son 4 Hane"
+              value={lastFourDigits}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                setLastFourDigits(value);
+              }}
+              inputProps={{
+                maxLength: 4,
+                inputMode: 'numeric',
+                pattern: '[0-9]*'
+              }}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
               label="Telefon"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               margin="normal"
+              disabled
             />
             <TextField
               fullWidth
@@ -350,12 +389,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
 
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6" gutterBottom>
-            Toplam: {total + cart.reduce((fee, item) => {
-              if (item.category === 'İçecekler') {
-                return fee + (5 * item.quantity);
-              }
-              return fee;
-            }, 0)}₺
+            Toplam: {total}₺
           </Typography>
           {initialOrderType === 'delivery' && (
             <FormControl fullWidth margin="normal">

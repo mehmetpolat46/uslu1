@@ -407,16 +407,7 @@ const OrderScreen: React.FC = () => {
 
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    const deliveryFee = orderType === 'delivery' ? cart.reduce((fee, item) => {
-      if (item.name.toLowerCase().includes('lavaş')) {
-        return fee;
-      }
-      if (item.category === 'İçecekler & Atıştırmalık') {
-        return fee + (5 * item.quantity);
-      } else {
-        return fee + (15 * item.quantity);
-      }
-    }, 0) : 0;
+    const deliveryFee = orderType === 'delivery' ? calculateDeliveryFee() : 0;
     return subtotal + deliveryFee;
   };
 
