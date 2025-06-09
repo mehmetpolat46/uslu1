@@ -85,46 +85,42 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
   }, [lastFourDigits]);
 
   const handleComplete = () => {
-    const orderItems: OrderItem[] = cart.map(item => ({
-      ...item,
-      id: item.id.toString(),
-      category: item.category || 'default',
-      name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
-    }));
+  const orderItems: OrderItem[] = cart.map(item => ({
+    ...item,
+    id: item.id.toString(),
+    category: item.category || 'default',
+    name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
+  }));
 
-    const deliveryFee = initialOrderType === 'delivery' ? (() => {
-      let hasMainDish = false;
-      let hasDrink = false;
+  const deliveryFee = initialOrderType === 'delivery' ? (() => {
+    let fee = 0;
 
-      cart.forEach(item => {
-        if (item.name.toLowerCase().includes('lavaş')) {
-          return; // Skip lavaş items
-        }
-        if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
-          hasMainDish = true;
-        } else if (item.category === 'İçecekler & Atıştırmalık') {
-          hasDrink = true;
-        }
-      });
+    cart.forEach(item => {
+      if (item.name.toLowerCase().includes('lavaş')) {
+        return; // lavaş için ücret eklenmesin
+      }
 
-      let fee = 0;
-      if (hasMainDish) fee += 15;
-      if (hasDrink) fee += 5;
-
-      return fee;
-    })() : 0;
-
-    const finalTotal = total;
-
-    addOrder({
-      type: initialOrderType,
-      items: orderItems,
-      total: finalTotal,
-      phone: initialOrderType === 'delivery' ? phone : undefined,
-      address: initialOrderType === 'delivery' ? address : undefined,
-      paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
+      if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
+        fee += 15 * (item.quantity || 1); // ürün adedi kadar kuru ücreti
+      } else if (item.category === 'İçecekler & Atıştırmalık') {
+        fee += 5 * (item.quantity || 1); // içecek/adet başına 5 TL
+      }
     });
 
+    return fee;
+  })() : 0;
+
+  const finalTotal = total + deliveryFee;
+
+  addOrder({
+    type: initialOrderType,
+    items: orderItems,
+    total: finalTotal,
+    phone: initialOrderType === 'delivery' ? phone : undefined,
+    address: initialOrderType === 'delivery' ? address : undefined,
+    paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
+  });
+};
     // Yazdırma işlemi
     const printWindow = window.open('', '_blank');
     if (printWindow) {
