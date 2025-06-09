@@ -1,20 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
-  TextField,
-  Button,
-  FormControl,
-  RadioGroup,
-  FormControlLabel,
-  Radio
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, IconButton, Radio, RadioGroup,
+  FormControlLabel, FormLabel
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useOrders } from '../context/OrderContext';
 import { CartItem, OrderItem } from '../types';
+import ExcelExport from './ExcelExport';
 
 interface OrderCompleteModalProps {
   open: boolean;
@@ -79,22 +71,26 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
     }));
 
-    const deliveryFee = initialOrderType === 'delivery' ? cart.reduce((fee, item) => {
-      const quantity = item.quantity ?? 1;
+    const deliveryFee = initialOrderType === 'delivery' ? (() => {
+      let fee = 0;
 
-      const isLavas = item.name.toLowerCase().includes('lavaş');
-      if (isLavas) return fee; // lavaş'tan kuru ücreti alınmaz
+      cart.forEach(item => {
+        const quantity = item.quantity ?? 1;
 
-      if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
-        return fee + 15 * quantity;
-      }
+        if (item.name.toLowerCase().includes('lavaş')) {
+          return; // Lavaş için kuru ücret alınmaz
+        }
 
-      if (item.category === 'İçecekler & Atıştırmalık') {
-        return fee + 5 * quantity;
-      }
+        const mainCategories = ['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'];
+        if (mainCategories.includes(item.category || '')) {
+          fee += 15 * quantity;
+        } else if (item.category === 'İçecekler & Atıştırmalık') {
+          fee += 5 * quantity;
+        }
+      });
 
       return fee;
-    }, 0) : 0;
+    })() : 0;
 
     const finalTotal = total + deliveryFee;
 
@@ -104,57 +100,65 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       total: finalTotal,
       phone: initialOrderType === 'delivery' ? phone : undefined,
       address: initialOrderType === 'delivery' ? address : undefined,
-      paymentType: initialOrderType === 'delivery' ? paymentType : undefined
+      paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
     });
 
-    setReceiptNumber(prev => prev + 1);
     onComplete();
+    setReceiptNumber(prev => prev + 1);
+    localStorage.setItem('receiptNumber', (receiptNumber + 1).toString());
     onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        Sipariş Tamamla
-        <IconButton onClick={onClose} style={{ position: 'absolute', right: 8, top: 8 }}>
+        Siparişi Tamamla
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent dividers>
         {initialOrderType === 'delivery' && (
           <>
             <TextField
-              label="Telefon"
-              fullWidth
+              label="Telefon Numarası"
               value={phone}
-              onChange={e => setPhone(e.target.value)}
+              onChange={(e) => setPhone(e.target.value)}
+              fullWidth
               margin="normal"
             />
             <TextField
-              label="Son 4 Hanesi"
-              fullWidth
+              label="Son 4 Hane"
               value={lastFourDigits}
-              onChange={e => setLastFourDigits(e.target.value)}
+              onChange={(e) => setLastFourDigits(e.target.value)}
+              fullWidth
               margin="normal"
             />
             <TextField
               label="Adres"
-              fullWidth
               value={address}
-              onChange={e => setAddress(e.target.value)}
+              onChange={(e) => setAddress(e.target.value)}
+              fullWidth
               margin="normal"
             />
-            <FormControl component="fieldset" margin="normal">
-              <RadioGroup row value={paymentType} onChange={e => setPaymentType(e.target.value as 'cash' | 'card')}>
-                <FormControlLabel value="cash" control={<Radio />} label="Nakit" />
-                <FormControlLabel value="card" control={<Radio />} label="Kart" />
-              </RadioGroup>
-            </FormControl>
+            <FormLabel component="legend" sx={{ mt: 2 }}>Ödeme Türü</FormLabel>
+            <RadioGroup
+              row
+              value={paymentType}
+              onChange={(e) => setPaymentType(e.target.value as 'cash' | 'card')}
+            >
+              <FormControlLabel value="cash" control={<Radio />} label="Nakit" />
+              <FormControlLabel value="card" control={<Radio />} label="Kart" />
+            </RadioGroup>
           </>
         )}
-        <p><strong>Toplam:</strong> {total} TL</p>
-        {initialOrderType === 'delivery' && <p><strong>Kurye Ücreti:</strong> {deliveryFee} TL</p>}
-        <p><strong>Genel Toplam:</strong> {total + deliveryFee} TL</p>
+        <p style={{ marginTop: 16, fontWeight: 'bold' }}>
+          Toplam Tutar: {total} TL + Kuru Ücret: {deliveryFee} TL = <span style={{ color: 'green' }}>{total + deliveryFee} TL</span>
+        </p>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleComplete} variant="contained" color="primary">
