@@ -96,14 +96,16 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     let fee = 0;
 
     cart.forEach(item => {
+      const quantity = item.quantity ?? 1; // quantity yoksa 1 say
+
       if (item.name.toLowerCase().includes('lavaş')) {
-        return; // lavaş için ücret eklenmesin
+        return; // lavaş ürünlerinden kuru ücreti alınmaz
       }
 
       if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
-        fee += 15 * (item.quantity || 1); // ürün adedi kadar kuru ücreti
+        fee += 15 * quantity; // ana ürünler için adet başı 15 TL
       } else if (item.category === 'İçecekler & Atıştırmalık') {
-        fee += 5 * (item.quantity || 1); // içecek/adet başına 5 TL
+        fee += 5 * quantity; // içecek/adet başı 5 TL
       }
     });
 
