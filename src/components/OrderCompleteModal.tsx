@@ -250,6 +250,43 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 border-top: 1px dashed #ccc;
                 margin: 15px 0;
               }
+              .<style>
+  body {
+    font-family: Arial, sans-serif;
+    color: black;
+    font-weight: bold;
+  }
+
+  .header,
+  .info,
+  .items,
+  .total,
+  .footer {
+    color: black;
+    font-weight: bold;
+  }
+
+  .item-name,
+  .item-details,
+  .grand-total span,
+  .receipt-number {
+    color: black;
+    font-weight: bold;
+  }
+
+  @media print {
+    body {
+      color: black !important;
+      font-weight: bold !important;
+    }
+
+    * {
+      color: black !important;
+      font-weight: bold !important;
+    }
+  }
+</style>
+
             </style>
           </head>
           <body>
