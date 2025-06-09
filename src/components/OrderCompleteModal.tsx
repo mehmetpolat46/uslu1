@@ -215,6 +215,9 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 margin-top: 20px;
                 font-size: 14px;
               }
+              .body {
+                  color: #000;
+                }
               
               .total p {
                 margin: 8px 0;
