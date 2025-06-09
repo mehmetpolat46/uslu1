@@ -1,12 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, IconButton, Radio, RadioGroup,
-  FormControlLabel, FormLabel
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  Box,
+  TextField,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  IconButton,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import ExcelExport from './ExcelExport';
 import { useOrders } from '../context/OrderContext';
 import { CartItem, OrderItem } from '../types';
-import ExcelExport from './ExcelExport';
 
 interface OrderCompleteModalProps {
   open: boolean;
@@ -64,106 +85,429 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
   }, [lastFourDigits]);
 
   const handleComplete = () => {
-    const orderItems: OrderItem[] = cart.map(item => ({
-      ...item,
-      id: item.id.toString(),
-      category: item.category || 'default',
-      name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
-    }));
+  const orderItems: OrderItem[] = cart.map(item => ({
+    ...item,
+    id: item.id.toString(),
+    category: item.category || 'default',
+    name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
+  }));
 
-    const deliveryFee = initialOrderType === 'delivery' ? (() => {
-      let fee = 0;
+  const deliveryFee = initialOrderType === 'delivery' ? (() => {
+    let fee = 0;
 
-      cart.forEach(item => {
-        const quantity = item.quantity ?? 1;
+    cart.forEach(item => {
+      const quantity = item.quantity ?? 1; // quantity yoksa 1 say
 
-        if (item.name.toLowerCase().includes('lavaş')) {
-          return; // Lavaş için kuru ücret alınmaz
-        }
+      if (item.name.toLowerCase().includes('lavaş')) {
+        return; // lavaş ürünlerinden kuru ücreti alınmaz
+      }
 
-        const mainCategories = ['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'];
-        if (mainCategories.includes(item.category || '')) {
-          fee += 15 * quantity;
-        } else if (item.category === 'İçecekler & Atıştırmalık') {
-          fee += 5 * quantity;
-        }
-      });
-
-      return fee;
-    })() : 0;
-
-    const finalTotal = total + deliveryFee;
-
-    addOrder({
-      type: initialOrderType,
-      items: orderItems,
-      total: finalTotal,
-      phone: initialOrderType === 'delivery' ? phone : undefined,
-      address: initialOrderType === 'delivery' ? address : undefined,
-      paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
+      if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
+        fee += 15 * quantity; // ana ürünler için adet başı 15 TL
+      } else if (item.category === 'İçecekler & Atıştırmalık') {
+        fee += 5 * quantity; // içecek/adet başı 5 TL
+      }
     });
 
+    return fee;
+  })() : 0;
+
+  const finalTotal = total + deliveryFee;
+
+  addOrder({
+    type: initialOrderType,
+    items: orderItems,
+    total: finalTotal,
+    phone: initialOrderType === 'delivery' ? phone : undefined,
+    address: initialOrderType === 'delivery' ? address : undefined,
+    paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
+  });
+};
+    // Yazdırma işlemi
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>USLU DÖNER - Sipariş Fişi</title>
+            <style>
+              @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+              
+              body { 
+                font-family: 'Roboto', sans-serif;
+                padding: 20px;
+                max-width: 300px;
+                margin: 0 auto;
+                background: #fff;
+              }
+              
+              .header { 
+                text-align: center;
+                margin-bottom: 25px;
+                border-bottom: 2px dashed #333;
+                padding-bottom: 15px;
+              }
+              
+              .header h2 {
+                color: #e74c3c;
+                margin: 0;
+                font-size: 24px;
+                font-weight: 700;
+              }
+              
+              .header p {
+                color: #666;
+                margin: 5px 0 0;
+                font-size: 14px;
+              }
+              
+              .receipt-number {
+                font-weight: 700;
+                font-size: 16px;
+                color: #000;
+              }
+              
+              .info {
+                margin-bottom: 25px;
+                font-size: 13px;
+                color: #444;
+              }
+              
+              .info p {
+                margin: 5px 0;
+              }
+              
+              .items {
+                margin-bottom: 25px;
+              }
+              
+              .item {
+                margin-bottom: 12px;
+                font-size: 13px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              }
+              
+              .item-name {
+                flex: 1;
+                margin-right: 10px;
+              }
+              
+              .item-details {
+                text-align: right;
+                white-space: nowrap;
+              }
+              
+              .dots {
+                border-bottom: 1px dotted #999;
+                flex: 1;
+                margin: 0 8px;
+                position: relative;
+                top: -4px;
+              }
+              
+              .total {
+                border-top: 2px dashed #333;
+                padding-top: 15px;
+                margin-top: 20px;
+                font-size: 14px;
+              }
+              .body {
+                  color: #000;
+                }
+              
+              .total p {
+                margin: 8px 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              }
+              
+              .total .grand-total {
+                font-weight: 700;
+                font-size: 16px;
+                color: #e74c3c;
+                margin-top: 10px;
+              }
+              
+              .footer {
+                text-align: center;
+                margin-top: 25px;
+                font-size: 12px;
+                color: #666;
+                border-top: 1px dashed #ccc;
+                padding-top: 15px;
+              }
+              
+              .footer p {
+                margin: 5px 0;
+              }
+              
+              .divider {
+                border-top: 1px dashed #ccc;
+                margin: 15px 0;
+              }
+              .<style>
+  body {
+    font-family: Arial, sans-serif;
+    color: black;
+    font-weight: bold;
+  }
+
+  .header,
+  .info,
+  .items,
+  .total,
+  .footer {
+    color: black;
+    font-weight: bold;
+  }
+
+  .item-name,
+  .item-details,
+  .grand-total span,
+  .receipt-number {
+    color: black;
+    font-weight: bold;
+  }
+
+  @media print {
+    body {
+      color: black !important;
+      font-weight: bold !important;
+    }
+
+    * {
+      color: black !important;
+      font-weight: bold !important;
+    }
+  }
+</style>
+
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h2>USLU DÖNER</h2>
+              <p>Sipariş Fişi</p>
+              <p class="receipt-number">Fiş No: ${receiptNumber}</p>
+            </div>
+            
+            <div class="info">
+              <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
+              <p><strong>Sipariş Tipi:</strong> ${initialOrderType === 'dine-in' ? 'İçeride' : 'Kurye'}</p>
+              ${initialOrderType === 'delivery' ? `
+                <div class="divider"></div>
+                <p><strong>Telefon:</strong> ${phone || '...............................'}</p>
+                <p><strong>Adres:</strong> ${address || '..............................................................................................................................'}</p> <br/>
+                <p><strong>Ödeme Tipi:</strong> ${paymentType === 'cash' ? 'Nakit' : 'Kredi Kartı'}</p>
+              ` : ''}
+            </div>
+            
+            <div class="items">
+              ${cart.map(item => `
+                <div class="item">
+                  <span class="item-name">${item.name}</span>
+                  <span class="dots"></span>
+                  <span class="item-details">${item.quantity} x ${item.price}₺ = ${item.price * item.quantity}₺</span>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="total">
+              <p>
+                <span>Ara Toplam</span>
+                <span>${total}₺</span>
+              </p>
+              <p class="grand-total">
+                <span>Genel Toplam</span>
+                <span>${total}₺</span>
+              </p>
+            </div>
+            
+            <div class="footer">
+              <p>Bizi tercih ettiğiniz için teşekkür ederiz!</p>
+              <p>Afiyet olsun...</p>
+            </div>
+          </body>
+          <style>
+  body {
+    font-family: Arial, sans-serif;
+    color: black;
+    font-weight: bold;
+  }
+
+  .header,
+  .info,
+  .items,
+  .total,
+  .footer {
+    color: black;
+    font-weight: bold;
+  }
+
+  .item-name,
+  .item-details,
+  .grand-total span,
+  .receipt-number {
+    color: black;
+    font-weight: bold;
+  }
+
+  @media print {
+    body {
+      color: black !important;
+      font-weight: bold !important;
+    }
+
+    * {
+      color: black !important;
+      font-weight: bold !important;
+    }
+  }
+</style>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+      
+      // Fiş numarasını artır
+      setReceiptNumber(prev => prev + 1);
+    }
+
     onComplete();
-    setReceiptNumber(prev => prev + 1);
-    localStorage.setItem('receiptNumber', (receiptNumber + 1).toString());
-    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        Siparişi Tamamla
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ position: 'absolute', right: 8, top: 8 }}
-        >
-          <CloseIcon />
-        </IconButton>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">Siparişi Tamamla</Typography>
+          <IconButton onClick={onClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
       </DialogTitle>
-      <DialogContent dividers>
+      <DialogContent>
+        <Box mb={2}>
+          <Typography variant="subtitle1" gutterBottom>
+            Sipariş Özeti
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Ürün</TableCell>
+                  <TableCell align="right">Adet</TableCell>
+                  <TableCell align="right">Fiyat</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {cart.map((item) => (
+                  <TableRow key={item.name}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell align="right">{item.quantity}</TableCell>
+                    <TableCell align="right">{item.price * item.quantity}₺</TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell colSpan={2}>
+                    <Typography variant="subtitle2">Ara Toplam</Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography variant="subtitle2">{total}₺</Typography>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+
         {initialOrderType === 'delivery' && (
           <>
             <TextField
-              label="Telefon Numarası"
+              fullWidth
+              label="Telefon Son 4 Hane"
+              value={lastFourDigits}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                setLastFourDigits(value);
+              }}
+              inputProps={{
+                maxLength: 4,
+                inputMode: 'numeric',
+                pattern: '[0-9]*'
+              }}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Telefon"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              fullWidth
               margin="normal"
+              disabled
             />
             <TextField
-              label="Son 4 Hane"
-              value={lastFourDigits}
-              onChange={(e) => setLastFourDigits(e.target.value)}
               fullWidth
-              margin="normal"
-            />
-            <TextField
               label="Adres"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              fullWidth
               margin="normal"
+              multiline
+              rows={2}
             />
-            <FormLabel component="legend" sx={{ mt: 2 }}>Ödeme Türü</FormLabel>
-            <RadioGroup
-              row
-              value={paymentType}
-              onChange={(e) => setPaymentType(e.target.value as 'cash' | 'card')}
-            >
-              <FormControlLabel value="cash" control={<Radio />} label="Nakit" />
-              <FormControlLabel value="card" control={<Radio />} label="Kart" />
-            </RadioGroup>
           </>
         )}
-        <p style={{ marginTop: 16, fontWeight: 'bold' }}>
-          Toplam Tutar: {total} TL + Kuru Ücret: {deliveryFee} TL = <span style={{ color: 'green' }}>{total + deliveryFee} TL</span>
-        </p>
+
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Toplam: {total}₺
+          </Typography>
+          {initialOrderType === 'delivery' && (
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Ödeme Tipi</InputLabel>
+              <Select
+                value={paymentType}
+                onChange={(e) => setPaymentType(e.target.value as 'cash' | 'card')}
+                label="Ödeme Tipi"
+              >
+                <MenuItem value="cash">Nakit</MenuItem>
+                <MenuItem value="card">Kredi Kartı</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleComplete}
+            sx={{ mt: 2 }}
+          >
+            Siparişi Tamamla
+          </Button>
+          <ExcelExport 
+            data={[{
+              date: new Date(),
+              type: initialOrderType,
+              items: cart,
+              phone: initialOrderType === 'delivery' ? phone : undefined,
+              address: initialOrderType === 'delivery' ? address : undefined,
+              paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
+              total: total + cart.reduce((fee, item) => {
+                if (item.category === 'İçecekler') {
+                  return fee + (5 * item.quantity);
+                }
+                return fee;
+              }, 0)
+            }]} 
+            filename="uslu_doner_siparis" 
+          />
+        </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleComplete} variant="contained" color="primary">
-          Siparişi Tamamla
-        </Button>
+        <Button onClick={onClose}>İptal</Button>
       </DialogActions>
     </Dialog>
   );
