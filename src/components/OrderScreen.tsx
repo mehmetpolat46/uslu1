@@ -445,15 +445,6 @@ const OrderScreen: React.FC = () => {
   };
 
   const handleComplete = () => {
-    addOrder({
-      type: orderType,
-      items: cart,
-      total: calculateTotal(),
-      phone,
-      address,
-      paymentType: orderType === 'delivery' ? paymentType : undefined,
-    });
-
     // Yazdırma işlemi
     const printWindow = window.open('', '_blank');
     if (printWindow) {
