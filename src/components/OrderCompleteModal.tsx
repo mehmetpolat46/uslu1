@@ -315,10 +315,22 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          maxHeight: '90vh',
+          width: '90%',
+          maxWidth: '600px'
+        }
+      }}
+    >
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">Siparişi Tamamla</Typography>
+          <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>Siparişi Tamamla</Typography>
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
           </IconButton>
@@ -327,20 +339,20 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Ürün</TableCell>
-                  <TableCell align="right">Adet</TableCell>
-                  <TableCell align="right">Fiyat</TableCell>
+                  <TableCell sx={{ fontSize: '0.9rem' }}>Ürün</TableCell>
+                  <TableCell align="right" sx={{ fontSize: '0.9rem' }}>Adet</TableCell>
+                  <TableCell align="right" sx={{ fontSize: '0.9rem' }}>Fiyat</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {cart.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell align="right">{item.quantity}</TableCell>
-                    <TableCell align="right">{item.price} TL</TableCell>
+                    <TableCell sx={{ fontSize: '0.9rem' }}>{item.name}</TableCell>
+                    <TableCell align="right" sx={{ fontSize: '0.9rem' }}>{item.quantity}</TableCell>
+                    <TableCell align="right" sx={{ fontSize: '0.9rem' }}>{item.price} TL</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -583,98 +583,113 @@ const OrderScreen: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" color="default" elevation={1}>
-        <Toolbar>
+        <Toolbar sx={{ minHeight: '64px' }}>
           <IconButton
             edge="start"
             color="inherit"
             onClick={() => navigate('/')}
-            sx={{ mr: 2 }}
+            sx={{ mr: 1 }}
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            USLU DÖNER – Sipariş tipi: {orderType === 'dine-in' ? 'İçeride' : 'Kurye'}
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: '1.1rem' }}>
+            USLU DÖNER – {orderType === 'dine-in' ? 'İçeride' : 'Kurye'}
           </Typography>
-          <Button
-            startIcon={<BarChartIcon />}
-            onClick={() => navigate('/admin')}
-            sx={{ mr: 1 }}
-          >
-            Raporlar
-          </Button>
-          <Button
-            startIcon={<SettingsIcon />}
-            onClick={() => navigate('/admin')}
-            sx={{ mr: 1 }}
-          >
-            Ayarlar
-          </Button>
-          <Button
-            startIcon={<HomeIcon />}
-            onClick={() => navigate('/')}
-            sx={{ mr: 1 }}
-          >
-            Ana Sayfa
-          </Button>
-          <Button
-            startIcon={<PrintIcon />}
-            onClick={exportToExcel}
-            sx={{ mr: 1 }}
-          >
-            Excel'e Aktar
-          </Button>
-          <IconButton color="inherit">
-            <Badge badgeContent={cart.length} color="primary">
-              <ShoppingCartIcon />
-            </Badge>
-          </IconButton>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              startIcon={<BarChartIcon />}
+              onClick={() => navigate('/admin')}
+              size="small"
+              sx={{ fontSize: '0.8rem' }}
+            >
+              Raporlar
+            </Button>
+            <Button
+              startIcon={<SettingsIcon />}
+              onClick={() => navigate('/admin')}
+              size="small"
+              sx={{ fontSize: '0.8rem' }}
+            >
+              Ayarlar
+            </Button>
+            <Button
+              startIcon={<HomeIcon />}
+              onClick={() => navigate('/')}
+              size="small"
+              sx={{ fontSize: '0.8rem' }}
+            >
+              Ana Sayfa
+            </Button>
+            <Button
+              startIcon={<PrintIcon />}
+              onClick={exportToExcel}
+              size="small"
+              sx={{ fontSize: '0.8rem' }}
+            >
+              Excel
+            </Button>
+            <IconButton color="inherit" size="small">
+              <Badge badgeContent={cart.length} color="primary">
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
 
       <Box sx={{ p: 3 }}>
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {/* Left side - Categories and Products */}
-          <Grid item xs={12} md={8}>
-            <Box sx={{ mb: 2 }}>
+          <Grid item xs={12} md={9}>
+            <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {categories.map((category) => (
                 <Button
                   key={category}
                   variant={selectedCategory === category ? 'contained' : 'outlined'}
                   onClick={() => setSelectedCategory(category)}
-                  sx={{ mr: 1, mb: 1 }}
+                  sx={{ 
+                    minWidth: '120px',
+                    height: '40px',
+                    fontSize: '0.9rem'
+                  }}
                 >
                   {category}
                 </Button>
               ))}
             </Box>
 
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
               {filteredProducts.map((product) => (
-                <Grid item xs={12} sm={6} key={product.id}>
-                  <Card>
+                <Grid item xs={12} sm={6} md={4} key={product.id}>
+                  <Card sx={{ height: '100%' }}>
                     <CardContent>
-                      <Typography variant="h6">{product.name}</Typography>
-                      <Typography color="textSecondary">
+                      <Typography variant="h6" sx={{ fontSize: '1rem' }}>{product.name}</Typography>
+                      <Typography color="textSecondary" sx={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
                         {product.price}₺
                       </Typography>
                       {product.description && (
-                        <Typography variant="body2">{product.description}</Typography>
+                        <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{product.description}</Typography>
                       )}
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                         <IconButton
                           onClick={() => handleQuantityChange(product.id, -1)}
                           disabled={!quantities[product.id]}
+                          size="small"
                         >
                           <RemoveIcon />
                         </IconButton>
                         <TextField
                           value={quantities[product.id] || 0}
                           size="small"
-                          sx={{ width: 60, mx: 1 }}
-                          inputProps={{ readOnly: true }}
+                          sx={{ width: 50, mx: 1 }}
+                          inputProps={{ 
+                            readOnly: true,
+                            style: { textAlign: 'center', fontSize: '1rem' }
+                          }}
                         />
                         <IconButton
                           onClick={() => handleQuantityChange(product.id, 1)}
+                          size="small"
                         >
                           <AddIcon />
                         </IconButton>
@@ -682,9 +697,9 @@ const OrderScreen: React.FC = () => {
                           variant="contained"
                           onClick={() => addToCart(product)}
                           disabled={!quantities[product.id]}
-                          sx={{ ml: 2 }}
+                          sx={{ ml: 1, fontSize: '0.8rem' }}
                         >
-                          Sepete Ekle
+                          Ekle
                         </Button>
                       </Box>
                     </CardContent>
@@ -695,14 +710,14 @@ const OrderScreen: React.FC = () => {
           </Grid>
 
           {/* Right side - Cart */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6" gutterBottom>
+          <Grid item xs={12} md={3}>
+            <Paper sx={{ p: 2, height: 'calc(100vh - 120px)', position: 'sticky', top: '20px', overflow: 'auto' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600 }}>
                 🛒 Sepet
               </Typography>
               <Divider sx={{ mb: 2 }} />
               {cart.length === 0 ? (
-                <Typography color="textSecondary" align="center" sx={{ py: 4 }}>
+                <Typography color="textSecondary" align="center" sx={{ py: 4, fontSize: '0.9rem' }}>
                   Sepetiniz boş.
                   <br />
                   Lütfen sol taraftan ürün seçin.
@@ -717,33 +732,39 @@ const OrderScreen: React.FC = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         mb: 1,
+                        p: 1,
+                        borderRadius: 1,
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                        }
                       }}
                     >
                       <Box>
-                        <Typography>{item.name}</Typography>
-                        <Typography variant="body2" color="textSecondary">
+                        <Typography sx={{ fontSize: '0.9rem', fontWeight: 500 }}>{item.name}</Typography>
+                        <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.8rem' }}>
                           {item.quantity} x {item.price}₺
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography sx={{ mr: 1 }}>
+                        <Typography sx={{ mr: 1, fontSize: '0.9rem', fontWeight: 500 }}>
                           {item.quantity * item.price}₺
                         </Typography>
                         <IconButton
                           size="small"
                           onClick={() => removeFromCart(item.id)}
+                          sx={{ p: 0.5 }}
                         >
-                          <DeleteIcon />
+                          <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Box>
                     </Box>
                   ))}
                   <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600 }}>
                     Toplam: {calculateTotal()}₺
                   </Typography>
                   {orderType === 'delivery' && (
-                    <Typography variant="body2" color="textSecondary" gutterBottom>
+                    <Typography variant="body2" color="textSecondary" gutterBottom sx={{ fontSize: '0.8rem' }}>
                       * Kurye ücreti dahildir
                     </Typography>
                   )}
@@ -753,7 +774,7 @@ const OrderScreen: React.FC = () => {
                     disabled={cart.length === 0}
                     startIcon={<PrintIcon />}
                     onClick={() => setShowCompleteModal(true)}
-                    sx={{ mt: 2 }}
+                    sx={{ mt: 2, py: 1.5, fontSize: '0.9rem' }}
                   >
                     Siparişi Tamamla
                   </Button>
