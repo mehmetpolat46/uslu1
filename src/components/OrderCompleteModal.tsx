@@ -274,9 +274,9 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
             <div class="info">
                 <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
                 <p>Sipariş Tipi: ${initialOrderType === 'delivery' ? 'Paket Servis' : 'Yerinde'}</p>
-              ${initialOrderType === 'delivery' ? `
-                  <p>Telefon: ${phone}</p> <br/>
-                  <p>Adres: ${address}</p><br/><br/><br/>
+              ${initialOrderType === 'delivery' ? `<br/>
+                  <p>Telefon: ${phone}</p> <br/><br/><br/>
+                  <p>Adres: ${address}</p><br/><br/><br/><br/><br/><br/>
                   <p>Ödeme: ${paymentType === 'cash' ? 'Nakit' : 'Kart'}</p>
               ` : ''}
             </div>
