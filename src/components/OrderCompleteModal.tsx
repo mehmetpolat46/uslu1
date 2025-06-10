@@ -252,6 +252,9 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 padding-top: 15px;
                 font-weight: 600;
               }
+              .items span {
+              font-size: 18px;
+              }
               
               .footer p {
                 margin: 5px 0;
