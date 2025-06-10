@@ -414,23 +414,21 @@ const OrderScreen: React.FC = () => {
   const calculateDeliveryFee = () => {
     if (orderType !== 'delivery') return 0;
 
-    let hasMainDish = false;
-    let hasDrink = false;
+    let fee = 0;
 
     cart.forEach(item => {
+      const quantity = item.quantity || 1;
+
       if (item.name.toLowerCase().includes('lavaş')) {
         return; // Skip lavaş items
       }
+
       if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
-        hasMainDish = true;
+        fee += (15 * quantity); // Her ana ürün için 15 TL
       } else if (item.category === 'İçecekler & Atıştırmalık') {
-        hasDrink = true;
+        fee += (5 * quantity); // Her içecek için 5 TL
       }
     });
-
-    let fee = 0;
-    if (hasMainDish) fee += 15;
-    if (hasDrink) fee += 5;
 
     return fee;
   };

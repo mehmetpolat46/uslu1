@@ -62,6 +62,16 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     return 1;
   });
 
+  // Reset input fields when modal opens
+  useEffect(() => {
+    if (open) {
+      setPhone('');
+      setAddress('');
+      setLastFourDigits('');
+      setPaymentType('cash');
+    }
+  }, [open]);
+
   useEffect(() => {
     const savedDate = localStorage.getItem('receiptDate');
     const today = new Date().toDateString();
@@ -92,37 +102,15 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     name: item.name.toLowerCase().includes('lavaş') ? `${item.name} (Ekstra Lavaş)` : item.name
   }));
 
-  const deliveryFee = initialOrderType === 'delivery' ? (() => {
-    let fee = 0;
-
-    cart.forEach(item => {
-      const quantity = item.quantity ?? 1; // quantity yoksa 1 say
-
-      if (item.name.toLowerCase().includes('lavaş')) {
-        return; // lavaş ürünlerinden kuru ücreti alınmaz
-      }
-
-      if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
-        fee += 15 * quantity; // ana ürünler için adet başı 15 TL
-      } else if (item.category === 'İçecekler & Atıştırmalık') {
-        fee += 5 * quantity; // içecek/adet başı 5 TL
-      }
-    });
-
-    return fee;
-  })() : 0;
-
-  const finalTotal = total + deliveryFee;
-
   addOrder({
     type: initialOrderType,
     items: orderItems,
-    total: finalTotal,
+      total: total,
     phone: initialOrderType === 'delivery' ? phone : undefined,
     address: initialOrderType === 'delivery' ? address : undefined,
     paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
   });
-};
+
     // Yazdırma işlemi
     const printWindow = window.open('', '_blank');
     if (printWindow) {
@@ -141,24 +129,34 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 background: #fff;
               }
               
+              .receipt {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                font-family: 'Courier New', monospace;
+                color: #000;
+                font-weight: 600;
+              }
+              
               .header { 
                 text-align: center;
-                margin-bottom: 25px;
-                border-bottom: 2px dashed #333;
-                padding-bottom: 15px;
+                margin-bottom: 20px;
+                color: #000;
               }
               
               .header h2 {
-                color: #e74c3c;
+                font-size: 20px;
                 margin: 0;
-                font-size: 24px;
+                color: #000;
                 font-weight: 700;
               }
               
               .header p {
-                color: #666;
+                color: #000;
                 margin: 5px 0 0;
                 font-size: 14px;
+                font-weight: 600;
               }
               
               .receipt-number {
@@ -170,11 +168,18 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               .info {
                 margin-bottom: 25px;
                 font-size: 13px;
-                color: #444;
+                color: #000;
+                font-weight: 600;
               }
               
               .info p {
                 margin: 5px 0;
+                color: #000;
+                font-weight: 600;
+              }
+
+              .info p:last-of-type {
+                margin-bottom: 20px;
               }
               
               .items {
@@ -187,20 +192,26 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                color: #000;
+                font-weight: 600;
               }
               
               .item-name {
                 flex: 1;
                 margin-right: 10px;
+                color: #000;
+                font-weight: 600;
               }
               
               .item-details {
                 text-align: right;
                 white-space: nowrap;
+                color: #000;
+                font-weight: 600;
               }
               
               .dots {
-                border-bottom: 1px dotted #999;
+                border-bottom: 1px dotted #000;
                 flex: 1;
                 margin: 0 8px;
                 position: relative;
@@ -208,13 +219,12 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               }
               
               .total {
-                border-top: 2px dashed #333;
+                border-top: 2px dashed #000;
                 padding-top: 15px;
                 margin-top: 20px;
                 font-size: 14px;
-              }
-              .body {
                   color: #000;
+                font-weight: 600;
                 }
               
               .total p {
@@ -222,12 +232,14 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                color: #000;
+                font-weight: 600;
               }
               
               .total .grand-total {
                 font-weight: 700;
                 font-size: 16px;
-                color: #e74c3c;
+                color: #000;
                 margin-top: 10px;
               }
               
@@ -235,73 +247,34 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 text-align: center;
                 margin-top: 25px;
                 font-size: 12px;
-                color: #666;
-                border-top: 1px dashed #ccc;
+                color: #000;
+                border-top: 1px dashed #000;
                 padding-top: 15px;
+                font-weight: 600;
               }
               
               .footer p {
                 margin: 5px 0;
-              }
-              
-              .divider {
-                border-top: 1px dashed #ccc;
-                margin: 15px 0;
-              }
-              .<style>
-  body {
-    font-family: Arial, sans-serif;
-    color: black;
-    font-weight: bold;
+                color: #000;
+                font-weight: 600;
   }
-
-  .header,
-  .info,
-  .items,
-  .total,
-  .footer {
-    color: black;
-    font-weight: bold;
-  }
-
-  .item-name,
-  .item-details,
-  .grand-total span,
-  .receipt-number {
-    color: black;
-    font-weight: bold;
-  }
-
-  @media print {
-    body {
-      color: black !important;
-      font-weight: bold !important;
-    }
-
-    * {
-      color: black !important;
-      font-weight: bold !important;
-    }
-  }
-</style>
-
             </style>
           </head>
           <body>
+            <div class="receipt">
             <div class="header">
               <h2>USLU DÖNER</h2>
-              <p>Sipariş Fişi</p>
+                <p>Hatay Usulü & Klasik Döner </p>
               <p class="receipt-number">Fiş No: ${receiptNumber}</p>
             </div>
             
             <div class="info">
-              <p><strong>Tarih:</strong> ${new Date().toLocaleString('tr-TR')}</p>
-              <p><strong>Sipariş Tipi:</strong> ${initialOrderType === 'dine-in' ? 'İçeride' : 'Kurye'}</p>
+                <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
+                <p>Sipariş Tipi: ${initialOrderType === 'delivery' ? 'Paket Servis' : 'Yerinde'}</p>
               ${initialOrderType === 'delivery' ? `
-                <div class="divider"></div>
-                <p><strong>Telefon:</strong> ${phone || '...............................'}</p>
-                <p><strong>Adres:</strong> ${address || '..............................................................................................................................'}</p> <br/>
-                <p><strong>Ödeme Tipi:</strong> ${paymentType === 'cash' ? 'Nakit' : 'Kredi Kartı'}</p>
+                  <p>Telefon: ${phone}</p> <br/>
+                  <p>Adres: ${address}</p><br/><br/><br/>
+                  <p>Ödeme: ${paymentType === 'cash' ? 'Nakit' : 'Kart'}</p>
               ` : ''}
             </div>
             
@@ -310,73 +283,35 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 <div class="item">
                   <span class="item-name">${item.name}</span>
                   <span class="dots"></span>
-                  <span class="item-details">${item.quantity} x ${item.price}₺ = ${item.price * item.quantity}₺</span>
+                    <span class="item-details">
+                      ${item.quantity}x ${item.price} TL
+                    </span>
                 </div>
               `).join('')}
             </div>
             
             <div class="total">
-              <p>
-                <span>Ara Toplam</span>
-                <span>${total}₺</span>
-              </p>
               <p class="grand-total">
-                <span>Genel Toplam</span>
-                <span>${total}₺</span>
+                  <span>Toplam:</span>
+                  <span>${total.toFixed(2)} TL</span>
               </p>
             </div>
             
             <div class="footer">
               <p>Bizi tercih ettiğiniz için teşekkür ederiz!</p>
               <p>Afiyet olsun...</p>
+              </div>
             </div>
           </body>
-          <style>
-  body {
-    font-family: Arial, sans-serif;
-    color: black;
-    font-weight: bold;
-  }
-
-  .header,
-  .info,
-  .items,
-  .total,
-  .footer {
-    color: black;
-    font-weight: bold;
-  }
-
-  .item-name,
-  .item-details,
-  .grand-total span,
-  .receipt-number {
-    color: black;
-    font-weight: bold;
-  }
-
-  @media print {
-    body {
-      color: black !important;
-      font-weight: bold !important;
-    }
-
-    * {
-      color: black !important;
-      font-weight: bold !important;
-    }
-  }
-</style>
         </html>
       `);
       printWindow.document.close();
       printWindow.print();
-      
-      // Fiş numarasını artır
-      setReceiptNumber(prev => prev + 1);
     }
 
+    setReceiptNumber(prev => prev + 1);
     onComplete();
+    onClose();
   };
 
   return (
@@ -390,12 +325,9 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
         </Box>
       </DialogTitle>
       <DialogContent>
-        <Box mb={2}>
-          <Typography variant="subtitle1" gutterBottom>
-            Sipariş Özeti
-          </Typography>
+        <Box sx={{ mt: 2 }}>
           <TableContainer>
-            <Table size="small">
+            <Table>
               <TableHead>
                 <TableRow>
                   <TableCell>Ürün</TableCell>
@@ -405,109 +337,70 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               </TableHead>
               <TableBody>
                 {cart.map((item) => (
-                  <TableRow key={item.name}>
+                  <TableRow key={item.id}>
                     <TableCell>{item.name}</TableCell>
                     <TableCell align="right">{item.quantity}</TableCell>
-                    <TableCell align="right">{item.price * item.quantity}₺</TableCell>
+                    <TableCell align="right">{item.price} TL</TableCell>
                   </TableRow>
                 ))}
-                <TableRow>
-                  <TableCell colSpan={2}>
-                    <Typography variant="subtitle2">Ara Toplam</Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography variant="subtitle2">{total}₺</Typography>
-                  </TableCell>
-                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
-        </Box>
 
         {initialOrderType === 'delivery' && (
-          <>
+            <Box sx={{ mt: 3 }}>
             <TextField
               fullWidth
-              label="Telefon Son 4 Hane"
+                label="Telefon Son 4 Hanesi"
               value={lastFourDigits}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-                setLastFourDigits(value);
-              }}
-              inputProps={{
-                maxLength: 4,
-                inputMode: 'numeric',
-                pattern: '[0-9]*'
-              }}
-              margin="normal"
+                onChange={(e) => setLastFourDigits(e.target.value)}
+                sx={{ mb: 2 }}
+                inputProps={{ maxLength: 4 }}
+                helperText="Son 4 haneyi girerek kayıtlı bilgileri getirebilirsiniz"
             />
             <TextField
               fullWidth
               label="Telefon"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              margin="normal"
-              disabled
+                sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
               label="Adres"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              margin="normal"
-              multiline
-              rows={2}
-            />
-          </>
-        )}
-
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Toplam: {total}₺
-          </Typography>
-          {initialOrderType === 'delivery' && (
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Ödeme Tipi</InputLabel>
-              <Select
+                sx={{ mb: 2 }}
+              />
+              <FormControl component="fieldset" sx={{ mb: 2 }}>
+                <FormLabel component="legend">Ödeme Tipi</FormLabel>
+                <RadioGroup
                 value={paymentType}
                 onChange={(e) => setPaymentType(e.target.value as 'cash' | 'card')}
-                label="Ödeme Tipi"
-              >
-                <MenuItem value="cash">Nakit</MenuItem>
-                <MenuItem value="card">Kredi Kartı</MenuItem>
-              </Select>
+                >
+                  <FormControlLabel value="cash" control={<Radio />} label="Nakit" />
+                  <FormControlLabel value="card" control={<Radio />} label="Kart" />
+                </RadioGroup>
             </FormControl>
+            </Box>
           )}
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleComplete}
-            sx={{ mt: 2 }}
-          >
-            Siparişi Tamamla
-          </Button>
-          <ExcelExport 
-            data={[{
-              date: new Date(),
-              type: initialOrderType,
-              items: cart,
-              phone: initialOrderType === 'delivery' ? phone : undefined,
-              address: initialOrderType === 'delivery' ? address : undefined,
-              paymentType: initialOrderType === 'delivery' ? paymentType : undefined,
-              total: total + cart.reduce((fee, item) => {
-                if (item.category === 'İçecekler') {
-                  return fee + (5 * item.quantity);
-                }
-                return fee;
-              }, 0)
-            }]} 
-            filename="uslu_doner_siparis" 
-          />
+
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h6" align="right">
+              Toplam: {total} TL
+            </Typography>
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>İptal</Button>
+        <Button
+          onClick={handleComplete}
+          variant="contained"
+          color="primary"
+        >
+          Tamamla
+        </Button>
       </DialogActions>
     </Dialog>
   );
