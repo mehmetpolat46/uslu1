@@ -124,7 +124,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               body { 
                 font-family: 'Roboto', sans-serif;
                 padding: 20px;
-                max-width: 400px;
+                max-width: 600px;
                 margin: 0 auto;
                 background: #fff;
               }
@@ -137,6 +137,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 font-family: 'Courier New', monospace;
                 color: #000;
                 font-weight: 600;
+                width: 100%;
               }
               
               .header { 
@@ -146,7 +147,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               }
               
               .header h2 {
-                font-size: 20px;
+                font-size: 28px;
                 margin: 0;
                 color: #000;
                 font-weight: 700;
@@ -155,19 +156,19 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               .header p {
                 color: #000;
                 margin: 5px 0 0;
-                font-size: 14px;
+                font-size: 18px;
                 font-weight: 600;
               }
               
               .receipt-number {
                 font-weight: 700;
-                font-size: 16px;
+                font-size: 20px;
                 color: #000;
               }
               
               .info {
                 margin-bottom: 25px;
-                font-size: 13px;
+                font-size: 16px;
                 color: #000;
                 font-weight: 600;
               }
@@ -176,6 +177,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 margin: 5px 0;
                 color: #000;
                 font-weight: 600;
+                font-size: 21px;
               }
 
               .info p:last-of-type {
@@ -187,20 +189,22 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               }
               
               .item {
-                margin-bottom: 12px;
-                font-size: 13px;
+                margin-bottom: 20px;
+                font-size: 18px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 color: #000;
                 font-weight: 600;
+                line-height: 1.5;
               }
               
               .item-name {
                 flex: 1;
-                margin-right: 10px;
+                margin-right: 15px;
                 color: #000;
                 font-weight: 600;
+                font-size: 26px;
               }
               
               .item-details {
@@ -208,12 +212,13 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 white-space: nowrap;
                 color: #000;
                 font-weight: 600;
+                font-size: 24px;
               }
               
               .dots {
                 border-bottom: 1px dotted #000;
                 flex: 1;
-                margin: 0 8px;
+                margin: 0 12px;
                 position: relative;
                 top: -4px;
               }
@@ -222,10 +227,10 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
                 border-top: 2px dashed #000;
                 padding-top: 15px;
                 margin-top: 20px;
-                font-size: 14px;
-                  color: #000;
+                font-size: 18px;
+                color: #000;
                 font-weight: 600;
-                }
+              }
               
               .total p {
                 margin: 8px 0;
@@ -238,7 +243,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               
               .total .grand-total {
                 font-weight: 700;
-                font-size: 16px;
+                font-size: 22px;
                 color: #000;
                 margin-top: 10px;
               }
@@ -246,21 +251,22 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               .footer {
                 text-align: center;
                 margin-top: 25px;
-                font-size: 12px;
+                font-size: 16px;
                 color: #000;
                 border-top: 1px dashed #000;
                 padding-top: 15px;
                 font-weight: 600;
               }
               .items span {
-              font-size: 14px;
+                font-size: 22px !important;
               }
+              
               
               .footer p {
                 margin: 5px 0;
                 color: #000;
                 font-weight: 600;
-  }
+              }
             </style>
           </head>
           <body>
