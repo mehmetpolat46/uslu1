@@ -124,7 +124,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
               body { 
                 font-family: 'Roboto', sans-serif;
                 padding: 20px;
-                max-width: 300px;
+                max-width: 400px;
                 margin: 0 auto;
                 background: #fff;
               }
