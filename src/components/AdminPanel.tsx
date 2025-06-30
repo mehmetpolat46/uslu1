@@ -84,6 +84,7 @@ const AdminPanel: React.FC = () => {
     const saved = localStorage.getItem('savedPhones');
     return saved ? JSON.parse(saved) : {};
   });
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   // Save to localStorage whenever savedPhones changes
   useEffect(() => {
@@ -142,17 +143,29 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  // Siparişleri tarihe göre grupla
-  const groupedOrders = orders.reduce((acc, order) => {
+  // Siparişleri seçilen tarih aralığına göre filtrele
+  const startOfDay = startDate ? new Date(startDate) : null;
+  if (startOfDay) startOfDay.setHours(0,0,0,0);
+  const endOfDay = endDate ? new Date(endDate) : null;
+  if (endOfDay) endOfDay.setHours(23,59,59,999);
+  const filteredOrders = orders.filter(order => {
+    const orderDate = new Date(order.date);
+    if (startOfDay && orderDate < startOfDay) return false;
+    if (endOfDay && orderDate > endOfDay) return false;
+    return true;
+  });
+
+  // Siparişleri tarihe göre grupla (filtrelenmiş)
+  const groupedOrders = filteredOrders.reduce((acc, order) => {
     const date = new Date(order.date).toLocaleDateString('tr-TR');
     if (!acc[date]) {
       acc[date] = [];
     }
     acc[date].push(order);
     return acc;
-  }, {} as { [key: string]: typeof orders });
+  }, {} as { [key: string]: typeof filteredOrders });
 
-  // Günlük toplam satışları hesapla
+  // Günlük toplam satışları hesapla (filtrelenmiş)
   const dailySales = Object.entries(groupedOrders).map(([date, orders]) => ({
     date,
     totalSales: orders.reduce((sum, order) => sum + order.total, 0),
@@ -160,8 +173,8 @@ const AdminPanel: React.FC = () => {
     deliveryCount: orders.filter(order => order.type === 'delivery').length,
   }));
 
-  // Ürün bazlı satışları hesapla
-  const productSales = orders.reduce((acc, order) => {
+  // Ürün bazlı satışları hesapla (filtrelenmiş)
+  const productSales = filteredOrders.reduce((acc, order) => {
     order.items.forEach(item => {
       const existing = acc.find(p => p.name === item.name);
       if (existing) {
@@ -177,6 +190,40 @@ const AdminPanel: React.FC = () => {
     });
     return acc;
   }, [] as Array<{ name: string; quantity: number; total: number }>);
+
+  // stats fonksiyonunu da filtrelenmiş siparişlerle oluştur
+  const filteredStats = (() => {
+    const stats = {
+      totalSales: 0,
+      totalOrders: filteredOrders.length,
+      totalDeliveryOrders: 0,
+      productStats: {} as {
+        [key: string]: {
+          quantity: number;
+          total: number;
+          category: string;
+        };
+      },
+    };
+    filteredOrders.forEach((order) => {
+      stats.totalSales += order.total;
+      if (order.type === 'delivery') {
+        stats.totalDeliveryOrders++;
+      }
+      order.items.forEach((item) => {
+        if (!stats.productStats[item.name]) {
+          stats.productStats[item.name] = {
+            quantity: 0,
+            total: 0,
+            category: item.category,
+          };
+        }
+        stats.productStats[item.name].quantity += item.quantity;
+        stats.productStats[item.name].total += item.price * item.quantity;
+      });
+    });
+    return stats;
+  })();
 
   const handleDeleteProduct = (product: { name: string; quantity: number; total: number }) => {
     setSelectedProduct(product);
@@ -243,6 +290,22 @@ const AdminPanel: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Gün sonu sıfırlama işlemi
+  const handleDayReset = () => {
+    if (!startDate) return;
+    const startOfDay = new Date(startDate);
+    startOfDay.setHours(0,0,0,0);
+    const endOfDay = new Date(startDate);
+    endOfDay.setHours(23,59,59,999);
+    orders.forEach(order => {
+      const orderDate = new Date(order.date);
+      if (orderDate >= startOfDay && orderDate <= endOfDay) {
+        deleteOrder(order.id);
+      }
+    });
+    setResetDialogOpen(false);
   };
 
   return (
@@ -328,7 +391,7 @@ const AdminPanel: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.entries(stats.productStats).map(([name, data]) => (
+                  {Object.entries(filteredStats.productStats).map(([name, data]) => (
                     <TableRow key={name}>
                       <TableCell>{name}</TableCell>
                       <TableCell>{data.category}</TableCell>
@@ -342,11 +405,29 @@ const AdminPanel: React.FC = () => {
                     </TableCell>
                     <TableCell align="right">
                       <Typography variant="h6">
-                        {Object.values(stats.productStats).reduce((sum, data) => sum + data.quantity, 0)}
+                        {Object.values(filteredStats.productStats).reduce((sum, data) => sum + data.quantity, 0)}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <Typography variant="h6">{stats.totalSales}₺</Typography>
+                      <Typography variant="h6">{filteredStats.totalSales}₺</Typography>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={4} align="right">
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        Toplam Ekmek: {
+                          Object.entries(filteredStats.productStats).reduce((sum, [name, data]) => {
+                            if (
+                              data.category === 'İçecekler & Atıştırmalık' ||
+                              data.category === 'Takolar' ||
+                              name.toLowerCase().includes('tako')
+                            ) return sum;
+                            let ekmek = 1;
+                            if (name.toLowerCase().includes('maksi')) ekmek = 2;
+                            return sum + ekmek * data.quantity;
+                          }, 0)
+                        }
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -562,6 +643,7 @@ const AdminPanel: React.FC = () => {
                 color="error"
                 fullWidth
                 sx={{ mb: 2 }}
+                onClick={() => setResetDialogOpen(true)}
               >
                 Gün Sonu Sıfırlama
               </Button>
@@ -594,6 +676,20 @@ const AdminPanel: React.FC = () => {
             <Button onClick={confirmDeleteProduct} color="error">
               Sil
             </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={resetDialogOpen}
+          onClose={() => setResetDialogOpen(false)}
+        >
+          <DialogTitle>Gün Sonu Sıfırlama</DialogTitle>
+          <DialogContent>
+            <Typography>Bu işlemde seçili gündeki tüm siparişler silinecek. Emin misiniz?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setResetDialogOpen(false)}>İptal</Button>
+            <Button onClick={handleDayReset} color="error">Evet, Sıfırla</Button>
           </DialogActions>
         </Dialog>
       </Container>
