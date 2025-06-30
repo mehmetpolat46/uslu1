@@ -10,6 +10,9 @@ import { OrderProvider } from './context/OrderContext';
 const theme = createTheme({
   palette: {
     primary: {
+      main: '#1976d2',
+    },
+    error: {
       main: '#d32f2f',
     },
     secondary: {

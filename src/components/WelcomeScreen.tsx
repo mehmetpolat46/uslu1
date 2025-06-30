@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, Typography } from '@mui/material';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -6,9 +6,13 @@ import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 
 const WelcomeScreen: React.FC = () => {
   const navigate = useNavigate();
+  const [selectedType, setSelectedType] = useState<'dine-in' | 'delivery' | null>(null);
 
   const handleOrderType = (type: 'dine-in' | 'delivery') => {
-    navigate('/order', { state: { orderType: type } });
+    setSelectedType(type);
+    setTimeout(() => {
+      navigate(`/order?type=${type}`);
+    }, 200);
   };
 
   return (
@@ -23,7 +27,7 @@ const WelcomeScreen: React.FC = () => {
           gap: 4,
         }}
       >
-        <Typography variant="h1" component="h1" align="center" gutterBottom>
+        <Typography variant="h1" component="h1" align="center" gutterBottom sx={{ color: 'primary.main' }}>
           Uslu Döner
         </Typography>
 
@@ -35,6 +39,7 @@ const WelcomeScreen: React.FC = () => {
             startIcon={<RestaurantIcon />}
             onClick={() => handleOrderType('dine-in')}
             sx={{ py: 3, fontSize: '1.2rem' }}
+            color="error"
           >
             İçeri
           </Button>
@@ -46,6 +51,7 @@ const WelcomeScreen: React.FC = () => {
             startIcon={<DeliveryDiningIcon />}
             onClick={() => handleOrderType('delivery')}
             sx={{ py: 3, fontSize: '1.2rem' }}
+            color="primary"
           >
             Kurye
           </Button>

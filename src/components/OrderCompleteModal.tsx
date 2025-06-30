@@ -339,7 +339,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
     >
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>Siparişi Tamamla</Typography>
+          <Typography variant="h6" sx={{ fontSize: '1.1rem', color: initialOrderType === 'delivery' ? 'primary.main' : 'error.main' }}>Siparişi Tamamla</Typography>
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
           </IconButton>
@@ -418,7 +418,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
         <Button
           onClick={handleComplete}
           variant="contained"
-          color="primary"
+          color={initialOrderType === 'delivery' ? 'primary' : 'error'}
         >
           Tamamla
         </Button>

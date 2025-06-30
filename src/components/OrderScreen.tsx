@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
   Grid,
@@ -358,10 +358,10 @@ const menuItems: MenuItem[] = [
 ];
 
 const OrderScreen: React.FC = () => {
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addOrder } = useOrders();
-  const orderType = location.state?.orderType || 'dine-in';
+  const orderType = searchParams.get('type') === 'delivery' ? 'delivery' : 'dine-in';
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [quantities, setQuantities] = useState<Record<string | number, number>>({});
@@ -592,7 +592,7 @@ const OrderScreen: React.FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: '1.1rem' }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: '1.1rem', color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
             USLU DÖNER – {orderType === 'dine-in' ? 'İçeride' : 'Kurye'}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
@@ -601,6 +601,7 @@ const OrderScreen: React.FC = () => {
               onClick={() => navigate('/admin')}
               size="small"
               sx={{ fontSize: '0.8rem' }}
+              color={orderType === 'delivery' ? 'primary' : 'error'}
             >
               Raporlar
             </Button>
@@ -609,6 +610,7 @@ const OrderScreen: React.FC = () => {
               onClick={() => navigate('/admin')}
               size="small"
               sx={{ fontSize: '0.8rem' }}
+              color={orderType === 'delivery' ? 'primary' : 'error'}
             >
               Ayarlar
             </Button>
@@ -617,6 +619,7 @@ const OrderScreen: React.FC = () => {
               onClick={() => navigate('/')}
               size="small"
               sx={{ fontSize: '0.8rem' }}
+              color={orderType === 'delivery' ? 'primary' : 'error'}
             >
               Ana Sayfa
             </Button>
@@ -625,6 +628,7 @@ const OrderScreen: React.FC = () => {
               onClick={exportToExcel}
               size="small"
               sx={{ fontSize: '0.8rem' }}
+              color={orderType === 'delivery' ? 'primary' : 'error'}
             >
               Excel
             </Button>
@@ -652,6 +656,7 @@ const OrderScreen: React.FC = () => {
                     height: '40px',
                     fontSize: '0.9rem'
                   }}
+                  color={orderType === 'delivery' ? 'primary' : 'error'}
                 >
                   {category}
                 </Button>
@@ -698,6 +703,7 @@ const OrderScreen: React.FC = () => {
                           onClick={() => addToCart(product)}
                           disabled={!quantities[product.id]}
                           sx={{ ml: 1, fontSize: '0.8rem' }}
+                          color={orderType === 'delivery' ? 'primary' : 'error'}
                         >
                           Ekle
                         </Button>
@@ -712,7 +718,7 @@ const OrderScreen: React.FC = () => {
           {/* Right side - Cart */}
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 120px)', position: 'sticky', top: '20px', overflow: 'auto' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600, color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
                 🛒 Sepet
               </Typography>
               <Divider sx={{ mb: 2 }} />
@@ -760,7 +766,7 @@ const OrderScreen: React.FC = () => {
                     </Box>
                   ))}
                   <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600 }}>
+                  <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem', fontWeight: 600, color: orderType === 'delivery' ? 'primary.main' : 'error.main' }}>
                     Toplam: {calculateTotal()}₺
                   </Typography>
                   {orderType === 'delivery' && (
@@ -775,6 +781,7 @@ const OrderScreen: React.FC = () => {
                     startIcon={<PrintIcon />}
                     onClick={() => setShowCompleteModal(true)}
                     sx={{ mt: 2, py: 1.5, fontSize: '0.9rem' }}
+                    color={orderType === 'delivery' ? 'primary' : 'error'}
                   >
                     Siparişi Tamamla
                   </Button>
