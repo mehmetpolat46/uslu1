@@ -39,6 +39,9 @@ import { useOrders } from '../context/OrderContext';
 import PrintIcon from '@mui/icons-material/Print';
 import HomeIcon from '@mui/icons-material/Home';
 import ExcelExport from './ExcelExport';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -85,6 +88,8 @@ const AdminPanel: React.FC = () => {
     return saved ? JSON.parse(saved) : {};
   });
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [analysisCategory, setAnalysisCategory] = useState('all');
+  const [analysisProductName, setAnalysisProductName] = useState('');
 
   // Save to localStorage whenever savedPhones changes
   useEffect(() => {
@@ -308,6 +313,72 @@ const AdminPanel: React.FC = () => {
     setResetDialogOpen(false);
   };
 
+  const analysisChartData = React.useMemo(() => {
+    // Tüm siparişlerden ürünleri topla, içeri ve kurye ayrı say
+    const stats: { [key: string]: { name: string; dineInQuantity: number; deliveryQuantity: number } } = {};
+    filteredOrders.forEach(order => {
+      order.items.forEach(item => {
+        // Kategori filtresi
+        if (analysisCategory === 'Et' && !item.name.toLowerCase().includes('et')) return;
+        if (analysisCategory === 'Tavuk' && !item.name.toLowerCase().includes('tavuk')) return;
+        // Ürün ismi filtresi
+        if (analysisProductName && !item.name.toLowerCase().includes(analysisProductName.toLowerCase())) return;
+        if (!stats[item.name]) {
+          stats[item.name] = { name: item.name, dineInQuantity: 0, deliveryQuantity: 0 };
+        }
+        if (order.type === 'dine-in') {
+          stats[item.name].dineInQuantity += item.quantity;
+        } else if (order.type === 'delivery') {
+          stats[item.name].deliveryQuantity += item.quantity;
+        }
+      });
+    });
+    return Object.values(stats);
+  }, [filteredOrders, analysisCategory, analysisProductName]);
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.setFont('courier', 'normal');
+    doc.text('Uslu Döner Satış Raporu', 14, 16);
+    const tableColumn = ['Ürün Adı', 'Kategori', 'Adet', 'Toplam Tutar (₺)'];
+    const tableRows = Object.entries(filteredStats.productStats).map(([name, data]) => [
+      name,
+      data.category,
+      data.quantity,
+      data.total
+    ]);
+    // Toplam satırı
+    tableRows.push([
+      'Toplam',
+      '',
+      Object.values(filteredStats.productStats).reduce((sum, data) => sum + data.quantity, 0),
+      filteredStats.totalSales
+    ]);
+    // Ekmek satırı
+    tableRows.push([
+      'Toplam Ekmek',
+      '',
+      Object.entries(filteredStats.productStats).reduce((sum, [name, data]) => {
+        if (
+          data.category === 'İçecekler & Atıştırmalık' ||
+          data.category === 'Takolar' ||
+          name.toLowerCase().includes('tako')
+        ) return sum;
+        let ekmek = 1;
+        if (name.toLowerCase().includes('maksi')) ekmek = 2;
+        return sum + ekmek * data.quantity;
+      }, 0),
+      ''
+    ]);
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 22,
+      styles: { font: 'courier', fontStyle: 'normal', fontSize: 11 },
+    });
+    doc.save('uslu_doner_satis_raporu.pdf');
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" color="default" elevation={1}>
@@ -345,6 +416,7 @@ const AdminPanel: React.FC = () => {
             <Tab label="Kasa" />
             <Tab label="Raporlar" />
             <Tab label="Sipariş Geçmişi" />
+            <Tab label="Analiz" />
             <Tab label="Ayarlar" />
           </Tabs>
 
@@ -378,6 +450,13 @@ const AdminPanel: React.FC = () => {
                   />
                 </LocalizationProvider>
               )}
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={exportToPDF}
+              >
+                PDF'ye Aktar
+              </Button>
             </Box>
 
             <TableContainer>
@@ -479,6 +558,36 @@ const AdminPanel: React.FC = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>
+            {/* Sipariş Geçmişi için Tarih Filtresi */}
+            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Tarih Aralığı</InputLabel>
+                <Select
+                  value={dateRange}
+                  label="Tarih Aralığı"
+                  onChange={handleDateRangeChange}
+                >
+                  <MenuItem value="today">Bugün</MenuItem>
+                  <MenuItem value="yesterday">Dün</MenuItem>
+                  <MenuItem value="thisWeek">Bu Hafta</MenuItem>
+                  <MenuItem value="custom">Özel Aralık</MenuItem>
+                </Select>
+              </FormControl>
+              {dateRange === 'custom' && (
+                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={trLocale}>
+                  <DatePicker
+                    label="Başlangıç Tarihi"
+                    value={startDate}
+                    onChange={(newValue) => setStartDate(newValue)}
+                  />
+                  <DatePicker
+                    label="Bitiş Tarihi"
+                    value={endDate}
+                    onChange={(newValue) => setEndDate(newValue)}
+                  />
+                </LocalizationProvider>
+              )}
+            </Box>
             {Object.entries(groupedOrders).map(([date, dayOrders]) => (
               <Box key={date} sx={{ mb: 4 }}>
                 <Typography variant="h6" gutterBottom>
@@ -547,6 +656,67 @@ const AdminPanel: React.FC = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={3}>
+            {/* Analiz Sekmesi */}
+            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Tarih Aralığı</InputLabel>
+                <Select
+                  value={dateRange}
+                  label="Tarih Aralığı"
+                  onChange={handleDateRangeChange}
+                >
+                  <MenuItem value="today">Bugün</MenuItem>
+                  <MenuItem value="yesterday">Dün</MenuItem>
+                  <MenuItem value="thisWeek">Bu Hafta</MenuItem>
+                  <MenuItem value="custom">Özel Aralık</MenuItem>
+                </Select>
+              </FormControl>
+              {dateRange === 'custom' && (
+                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={trLocale}>
+                  <DatePicker
+                    label="Başlangıç Tarihi"
+                    value={startDate}
+                    onChange={(newValue) => setStartDate(newValue)}
+                  />
+                  <DatePicker
+                    label="Bitiş Tarihi"
+                    value={endDate}
+                    onChange={(newValue) => setEndDate(newValue)}
+                  />
+                </LocalizationProvider>
+              )}
+              <FormControl sx={{ minWidth: 160 }}>
+                <InputLabel>Kategori</InputLabel>
+                <Select
+                  value={analysisCategory || 'all'}
+                  label="Kategori"
+                  onChange={e => setAnalysisCategory(e.target.value)}
+                >
+                  <MenuItem value="all">Tümü</MenuItem>
+                  <MenuItem value="Et">Et</MenuItem>
+                  <MenuItem value="Tavuk">Tavuk</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Ürün İsmi Ara"
+                value={analysisProductName}
+                onChange={e => setAnalysisProductName(e.target.value)}
+                sx={{ minWidth: 200 }}
+              />
+            </Box>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={analysisChartData} margin={{ top: 16, right: 32, left: 16, bottom: 16 }}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="dineInQuantity" fill="#e53935" name="İçeri Satış" />
+                <Bar dataKey="deliveryQuantity" fill="#1976d2" name="Kurye Satış" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={4}>
             <Box sx={{ maxWidth: 600 }}>
               <Typography variant="h6" gutterBottom>
                 Telefon ve Adres Kayıtları
