@@ -424,9 +424,9 @@ const OrderScreen: React.FC = () => {
       }
 
       if (['Hatay Usulü Dönerler', 'Klasik Dönerler', 'Takolar', 'Porsiyonlar', 'Menüler'].includes(item.category)) {
-        fee += (15 * quantity); // Her ana ürün için 15 TL
+        fee += (20 * quantity); // Her ana ürün için 20 TL
       } else if (item.category === 'İçecekler & Atıştırmalık') {
-        fee += (5 * quantity); // Her içecek için 5 TL
+        fee += (10 * quantity); // Her içecek için 10 TL
       }
     });
 
