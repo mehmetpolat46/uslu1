@@ -93,6 +93,12 @@ const products: Product[] = [
     category: 'Hatay Usulü Dönerler',
   },
   {
+    id:221,
+    name: 'Mercimek Çorbası',
+    price: 80,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
     id: 4,
     name: 'Hatay Usulü ET Eko Döner',
     price: 220,
