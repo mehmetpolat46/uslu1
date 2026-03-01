@@ -117,7 +117,7 @@ const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
       printWindow.document.write(`
         <html>
           <head>
-            <title>USLU DÖNER - Sipariş Fişi</title>
+            <title>USLU DÖNER -  Fişi</title>
             <style>
               @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
               

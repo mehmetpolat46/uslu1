@@ -160,7 +160,7 @@ const AdminPanel: React.FC = () => {
     return true;
   });
 
-  // Siparişleri tarihe göre grupla (filtrelenmiş)
+  // Siparişleri tarihe göre grupla  (filtrelenmiş)
   const groupedOrders = filteredOrders.reduce((acc, order) => {
     const date = new Date(order.date).toLocaleDateString('tr-TR');
     if (!acc[date]) {
