@@ -110,6 +110,12 @@ const products: Product[] = [
     price: 330,
     category: 'Hatay Usulü Dönerler',
   },
+     {
+    id: 6725,
+    name: 'Mercimek Çorbası',
+    price: 90,
+    category: 'Hatay Usulü Dönerler',
+  },
 
   {
     id: 'hud-lavas',
