@@ -16,19 +16,6 @@ import {
   Snackbar,
   Alert,
   Badge,
-  CardMedia,
-  CardActions,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -54,14 +41,7 @@ interface Product {
   image?: string;
 }
 
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-}
+
 
 const categories = [
   'Hatay Usulü Dönerler',
@@ -83,31 +63,37 @@ const products: Product[] = [
   {
     id: 2,
     name: 'Hatay Usulü TAVUK Normal Döner',
-    price: 140,
+    price: 150,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 3,
     name: 'Hatay Usulü TAVUK Maksi Döner',
-    price: 180,
+    price: 190,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 4,
     name: 'Hatay Usulü ET Eko Döner',
-    price: 220,
+    price: 230,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 5,
     name: 'Hatay Usulü ET Normal Döner',
-    price: 260,
+    price: 270,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 6,
     name: 'Hatay Usulü ET Maksi Döner',
-    price: 320,
+    price: 330,
+    category: 'Hatay Usulü Dönerler',
+  },
+  {
+    id: 612,
+    name: 'Mercimek Çorbası',
+    price: 90,
     category: 'Hatay Usulü Dönerler',
   },
   {
@@ -121,25 +107,25 @@ const products: Product[] = [
   {
     id: 7,
     name: 'Klasik TAVUK Eko Döner',
-    price: 120,
+    price: 130,
     category: 'Klasik Dönerler',
   },
   {
     id: 8,
     name: 'Klasik TAVUK Normal Döner',
-    price: 140,
+    price: 150,
     category: 'Klasik Dönerler',
   },
   {
     id: 9,
     name: 'Klasik ET Eko Döner',
-    price: 220,
+    price: 230,
     category: 'Klasik Dönerler',
   },
   {
     id: 10,
     name: 'Klasik ET Normal Döner',
-    price: 260,
+    price: 270,
     category: 'Klasik Dönerler',
   },
   {
@@ -153,31 +139,31 @@ const products: Product[] = [
   {
     id: 11,
     name: 'TAVUK Tekli Tako',
-    price: 90,
+    price: 100,
     category: 'Takolar',
   },
   {
     id: 12,
     name: 'TAVUK İkili Tako',
-    price: 160,
+    price: 180,
     category: 'Takolar',
   },
   {
     id: 13,
     name: 'ET Tekli Tako',
-    price: 150,
+    price: 160,
     category: 'Takolar',
   },
   {
     id: 14,
     name: 'ET İkili Tako',
-    price: 280,
+    price: 300,
     category: 'Takolar',
   },
   {
     id: 15,
     name: 'Karışık Combo Tako',
-    price: 220,
+    price: 230,
     category: 'Takolar',
   },
   
@@ -186,25 +172,25 @@ const products: Product[] = [
   {
     id: 16,
     name: 'TAVUK Döner Porsiyon',
-    price: 200,
+    price: 210,
     category: 'Porsiyonlar',
   },
   {
     id: 17,
     name: 'Pilav Üstü TAVUK Döner Porsiyon',
-    price: 220,
+    price: 230,
     category: 'Porsiyonlar',
   },
   {
     id: 18,
     name: 'ET Döner Porsiyon',
-    price: 350,
+    price: 360,
     category: 'Porsiyonlar',
   },
   {
     id: 19,
     name: 'Pilav Üstü ET Döner Porsiyon',
-    price: 370,
+    price: 380,
     category: 'Porsiyonlar',
   },
   {
@@ -218,13 +204,13 @@ const products: Product[] = [
   {
     id: 20,
     name: 'TAVUK Döner Menü',
-    price: 200,
+    price: 210,
     category: 'Menüler',
   },
   {
     id: 21,
     name: 'ET Döner Menü',
-    price: 320,
+    price: 330,
     category: 'Menüler',
   },
   {
@@ -238,25 +224,25 @@ const products: Product[] = [
   {
     id: 22,
     name: 'Ayran',
-    price: 40,
+    price: 45,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 23,
     name: 'Kutu İçecekler',
-    price: 50,
+    price: 60,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 24,
     name: 'Şalgam',
-    price: 40,
+    price: 45,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 25,
     name: 'Soda',
-    price: 25,
+    price: 30,
     category: 'İçecekler & Atıştırmalık',
   },
   {
@@ -268,31 +254,31 @@ const products: Product[] = [
   {
     id: 27,
     name: 'Külahta Patates Kızartması',
-    price: 50,
+    price: 60,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 28,
     name: 'Antep Usulü Katmer Tatlısı',
-    price: 140,
+    price: 150,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 29,
     name: '1 LT Kola ',
-    price: 75,
+    price: 85,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 30,
     name: '1 LT Ayaran',
-    price: 75,
+    price: 85,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 31,
     name: '2,5 LT Kola',
-    price: 95,
+    price: 110,
     category: 'İçecekler & Atıştırmalık',
   },
 
