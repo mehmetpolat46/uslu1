@@ -77,19 +77,19 @@ const products: Product[] = [
   {
     id: 1,
     name: 'Hatay Usulü TAVUK Eko Döner',
-    price: 130,
+    price: 150,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 2,
     name: 'Hatay Usulü TAVUK Normal Döner',
-    price: 150,
+    price: 170,
     category: 'Hatay Usulü Dönerler',
   },
   {
     id: 3,
     name: 'Hatay Usulü TAVUK Maksi Döner',
-    price: 190,
+    price: 220,
     category: 'Hatay Usulü Dönerler',
   },
   {
@@ -128,13 +128,13 @@ const products: Product[] = [
   {
     id: 7,
     name: 'Klasik TAVUK Eko Döner',
-    price: 130,
+    price: 150,
     category: 'Klasik Dönerler',
   },
   {
     id: 8,
     name: 'Klasik TAVUK Normal Döner',
-    price: 150,
+    price: 170,
     category: 'Klasik Dönerler',
   },
   {
@@ -160,13 +160,13 @@ const products: Product[] = [
   {
     id: 11,
     name: 'TAVUK Tekli Tako',
-    price: 100,
+    price: 120,
     category: 'Takolar',
   },
   {
     id: 12,
     name: 'TAVUK İkili Tako',
-    price: 180,
+    price: 220,
     category: 'Takolar',
   },
   {
@@ -193,13 +193,13 @@ const products: Product[] = [
   {
     id: 16,
     name: 'TAVUK Döner Porsiyon',
-    price: 210,
+    price: 240,
     category: 'Porsiyonlar',
   },
   {
     id: 17,
     name: 'Pilav Üstü TAVUK Döner Porsiyon',
-    price: 230,
+    price: 270,
     category: 'Porsiyonlar',
   },
   {
@@ -245,25 +245,25 @@ const products: Product[] = [
   {
     id: 22,
     name: 'Ayran',
-    price: 45,
+    price: 50,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 23,
     name: 'Kutu İçecekler',
-    price: 60,
+    price: 70,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 24,
     name: 'Şalgam',
-    price: 45,
+    price: 50,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 25,
     name: 'Soda',
-    price: 30,
+    price: 35,
     category: 'İçecekler & Atıştırmalık',
   },
   {
@@ -275,38 +275,38 @@ const products: Product[] = [
   {
     id: 27,
     name: 'Külahta Patates Kızartması',
-    price: 60,
+    price: 70,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 28,
     name: 'Antep Usulü Katmer Tatlısı',
-    price: 150,
+    price: 180,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 29,
     name: '1 LT Kola ',
-    price: 85,
+    price: 90,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 30,
     name: '1 LT Ayaran',
-    price: 85,
+    price: 90,
     category: 'İçecekler & Atıştırmalık',
   },
   {
     id: 31,
     name: '2,5 LT Kola',
-    price: 110,
+    price: 120,
     category: 'İçecekler & Atıştırmalık',
   },
 
   {
     id: 'drink-2',
     name: 'Servis Patates',
-    price: 80,
+    price: 90,
     category: 'İçecekler & Atıştırmalık',
     image: 'https://via.placeholder.com/150',
   },
