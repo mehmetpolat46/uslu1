@@ -225,7 +225,7 @@ const products: Product[] = [
   {
     id: 20,
     name: 'TAVUK Döner Menü',
-    price: 210,
+    price: 260,
     category: 'Menüler',
   },
   {
